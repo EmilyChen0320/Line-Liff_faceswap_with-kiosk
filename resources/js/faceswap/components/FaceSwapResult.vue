@@ -1,454 +1,133 @@
 <template>
-  <div class="relative bg-black min-h-screen w-full flex flex-col">
-      <!-- Header -->
-    <div :class="isKioskMode ? 'py-8' : 'py-4'" class="flex justify-center items-center w-full">
+  <EnterpriseInnerLayout :is-kiosk-mode="isKioskMode" :current-step="4" @home="restart">
+    <div class="result-image-wrap">
       <img
-        :src="imageUrls.header"
-        :class="isKioskMode ? 'h-48' : 'h-11'"
-        class="object-contain"
-        alt="一秒變成大明星"
+        v-if="generatedImageUrl"
+        :src="generatedImageUrl"
+        alt="生成圖片"
+        class="result-image"
+        draggable="false"
       />
-    </div>
-    
-    <!-- 分隔線 (僅手機版) -->
-    <div v-if="!isKioskMode" class="w-full border-t border-[#EBD8B2] opacity-30 mb-6"></div>
-
-    <!-- Main Content -->
-    <div :class="isKioskMode ? 'px-16 py-12 relative' : 'px-6 py-8'" class="flex-1 flex flex-col items-center" style="pointer-events: auto;">
-      <!-- Decorative Bars (Kiosk only) -->
-      <div v-if="isKioskMode" class="absolute left-2 top-[40%] transform -translate-y-1/2 w-[500px] h-5 bg-gradient-to-r from-[#F773AF] via-[#AC86EB] to-[#FAAC95] -rotate-90 origin-left pointer-events-none z-10"></div>
-      <div v-if="isKioskMode" class="absolute right-2 top-[40%] transform -translate-y-1/2 w-[500px] h-5 bg-gradient-to-r from-[#F773AF] via-[#AC86EB] to-[#FAAC95] rotate-90 origin-right pointer-events-none z-10"></div>
-
-      <!-- 載入中狀態 -->
-      <div v-if="isLoading && !isFailed" :class="isKioskMode ? 'py-12' : 'py-20'" class="flex flex-col items-center justify-center">
-        <!-- Kiosk: 顯示 load.png 圖片 -->
-        <img 
-          v-if="isKioskMode"
-          :src="imageUrls.load"
-          alt="載入中"
-          class="w-[700px] h-[933px] object-contain mb-8"
-        />
-        <!-- 載入中文字 -->
-        <p :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-[#EBD8B2]">圖片生成中，請稍候...</p>
+      <div v-else class="empty-result">尚未取得生成圖片</div>
     </div>
 
-      <!-- 任務失敗錯誤訊息 -->
-      <div v-if="isFailed" :class="isKioskMode ? 'py-12' : 'py-20'" class="flex flex-col items-center justify-center">
-        <p :class="isKioskMode ? 'text-3xl' : 'text-base'" class="text-red-400 text-center font-bold mb-4">
-          {{ errorMessage }}
-        </p>
-        <p :class="isKioskMode ? 'text-2xl' : 'text-sm'" class="text-[#EBD8B2] text-center">
-          3秒後將自動返回首頁...
-        </p>
-      </div>
-
-      <!-- 生成的圖片 -->
-      <div v-else-if="!isLoading && !isFailed" :class="isKioskMode ? 'w-[900px] mb-12' : 'w-full max-w-[335px] mb-8'" class="relative z-20" style="pointer-events: none;">
-        <!-- 如果已送出成功，顯示實際生成的圖片；否則顯示固定的 result.png -->
-        <img
-          :src="showResultImage && generatedImageUrl ? generatedImageUrl : imageUrls.result"
-          alt="生成的圖片"
-          :class="isKioskMode ? 'w-[900px]' : 'w-full'"
-          class="object-contain rounded-lg shadow-lg"
-        />
-      </div>
-          
-      <!-- 表單（送出成功後隱藏） -->
-      <div v-if="!isLoading && !isFailed && !showResultImage" :class="isKioskMode ? 'w-[700px] space-y-8' : 'w-full max-w-[335px] space-y-6'" class="relative z-30" style="position: relative; pointer-events: auto;">
-        <!-- 真實姓名 (僅手機版) -->
-        <div v-if="!isKioskMode" class="relative z-40" style="pointer-events: auto;">
-          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#EBD8B2] font-bold">
-            真實姓名<span class="text-red-500">*</span>
-          </label>
-          <input
-            v-model="formData.name"
-            type="text"
-            placeholder="請輸入真實姓名"
-            :class="isKioskMode ? 'px-10 py-8 text-3xl' : 'px-4 py-3'"
-            class="w-full rounded-md bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#e91e63] relative z-50"
-            style="touch-action: manipulation; position: relative; pointer-events: auto;"
-            required
-              />
-            </div>
-
-        <!-- 聯絡電話 -->
-        <div class="relative z-40" style="pointer-events: auto;">
-          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#EBD8B2] font-bold">
-            聯絡電話<span class="text-red-500">*</span>
-          </label>
-          <input
-            v-model="formData.phone"
-            type="tel"
-            placeholder="請輸入聯絡電話"
-            :class="isKioskMode ? 'px-10 py-8 text-3xl' : 'px-4 py-3'"
-            class="w-full rounded-md bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#e91e63] relative z-50"
-            style="position: relative !important; z-index: 9999 !important; pointer-events: auto !important; cursor: text !important; touch-action: auto !important;"
-            @click.stop
-            @mousedown.stop
-            @touchstart.stop
-            required
-                />
-              </div>
-
-        <!-- Email (僅手機版) -->
-        <div v-if="!isKioskMode" class="relative z-40">
-          <label :class="isKioskMode ? 'text-3xl mb-4' : 'text-sm mb-2'" class="block text-[#EBD8B2] font-bold">
-            Email
-          </label>
-          <input
-            v-model="formData.email"
-            type="email"
-            placeholder="請輸入 Email"
-            :class="isKioskMode ? 'px-10 py-8 text-3xl' : 'px-4 py-3'"
-            class="w-full rounded-md bg-white text-gray-800 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-[#e91e63] relative z-50"
-            style="touch-action: manipulation; position: relative;"
-          />
-              </div>
-
-        <!-- 送出按鈕 -->
-        <button
-          type="button"
-          @click="handleSubmit"
-          @touchstart.prevent="handleSubmit"
-          :disabled="!isFormValid || isSubmitting"
-          :class="[
-            isKioskMode ? 'py-8 text-4xl !mt-20' : 'py-3.5',
-            isFormValid && !isSubmitting 
-              ? 'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] hover:shadow-lg text-gray-800 cursor-pointer' 
-              : 'bg-[#C7C7C7] text-white cursor-not-allowed'
-          ]"
-          class="w-full rounded-md font-bold whitespace-nowrap transition-all duration-300 text-center flex items-center justify-center relative z-50"
-          style="position: relative; pointer-events: auto !important; cursor: pointer !important;"
-        >
-          {{ isSubmitting ? '送出中...' : '送出' }}
-        </button>
-
-        <!-- 錯誤訊息 -->
-        <div v-if="errorMessage" :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-red-400 text-center font-bold">
-          {{ errorMessage }}
-      </div>
-
-        <!-- 成功訊息 -->
-        <div v-if="successMessage" :class="isKioskMode ? 'text-3xl' : 'text-sm'" class="text-[#EBD8B2] text-center font-bold">
-          {{ successMessage }}
-        </div>
-      </div>
-
-      <!-- 關閉並回到首頁按鈕（送出成功後顯示） -->
-      <div v-if="!isLoading && !isFailed && showResultImage" :class="isKioskMode ? 'w-[700px] mt-12' : 'w-full max-w-[335px] mt-8'" class="relative z-30" style="position: relative; pointer-events: auto;">
-        <button
-          type="button"
-          @click="handleCloseAndRestart"
-          @touchstart.prevent="handleCloseAndRestart"
-          :class="[
-            isKioskMode ? 'py-8 text-4xl' : 'py-3.5',
-            'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] hover:shadow-lg text-gray-800 cursor-pointer'
-          ]"
-          class="w-full rounded-md font-bold whitespace-nowrap transition-all duration-300 text-center flex items-center justify-center relative z-50"
-          style="position: relative; pointer-events: auto !important; cursor: pointer !important;"
-        >
-          關閉並回到首頁
-        </button>
-      </div>
-
-      <!-- 底部說明文字（僅在表單顯示時顯示） -->
-      <div v-if="!isLoading && !isFailed && !showResultImage" :class="isKioskMode ? 'mt-12 text-2xl px-16 z-20' : 'mt-8 text-xs px-6'" class="text-[#EBD8B2] text-center leading-relaxed relative">
-        此個人資料會提供給PP石墨烯作為<br>
-        此次抽獎活動使用與後續行銷推廣
+    <div class="action-row">
+      <button type="button" class="asset-button" @click="showQrCode" @touchend.prevent="showQrCode">
+        <img :src="imageUrls.enterprise.downloadButton" alt="下載圖片" draggable="false" />
+      </button>
+      <button type="button" class="asset-button" @click="restart" @touchend.prevent="restart">
+        <img :src="imageUrls.enterprise.restartButton" alt="重新開始" draggable="false" />
+      </button>
     </div>
-    </div>
-  </div>
+
+    <QRCodeModal
+      :is-visible="isQrVisible"
+      :image-url="generatedImageUrl"
+      :is-kiosk-mode="isKioskMode"
+      @close="isQrVisible = false"
+    />
+  </EnterpriseInnerLayout>
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue'
+import { ref } from 'vue'
 import { imageUrls } from '@/config/imageUrls'
-import { roadshowService } from '../../services/roadshowService.js'
+import EnterpriseInnerLayout from './EnterpriseInnerLayout.vue'
+import QRCodeModal from './QRCodeModal.vue'
 
 const props = defineProps({
-  taskId: {
+  generatedImageUrl: {
     type: String,
-    required: true
-  },
-  userId: {
-    type: String,
-    required: true
-  },
-  selectedTemplate: {
-    type: String,
-    default: ''
-  },
-  userUsage: {
-    type: Number,
-    default: 0
-  },
-  isPCMode: {
-    type: Boolean,
-    default: false
+    default: '',
   },
   isKioskMode: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
-const emit = defineEmits(['back', 'regenerate', 'download', 'restart'])
+const emit = defineEmits(['restart'])
 
-// 表單數據
-const formData = ref({
-  name: '',
-  phone: '',
-  email: ''
-})
+const isQrVisible = ref(false)
 
-// 生成的圖片 URL（處理後的 URL，用於顯示）
-const generatedImageUrl = ref('')
-// 原始圖片 URL（用於簡訊發送）
-const originalImageUrl = ref('')
-
-// UI 狀態
-const isSubmitting = ref(false)
-const errorMessage = ref('')
-const successMessage = ref('')
-// 初始顯示 loading，避免表單閃現，等檢查任務狀態後再決定
-const isLoading = ref(true)
-// 任務失敗狀態
-const isFailed = ref(false)
-// 控制是否顯示結果圖片頁面（送出成功後）
-const showResultImage = ref(false)
-
-// 表單驗證
-const isFormValid = computed(() => {
-  // Kiosk 模式：只驗證電話
-  if (props.isKioskMode) {
-    return formData.value.phone.trim() !== '' &&
-           /^09\d{8}$/.test(formData.value.phone.trim())
-  }
-  // 手機版：驗證姓名和電話
-  return formData.value.name.trim() !== '' && 
-         formData.value.phone.trim() !== '' &&
-         /^09\d{8}$/.test(formData.value.phone.trim())
-})
-
-// 組件掛載時檢查任務狀態
-onMounted(async () => {
-  // 如果是測試模式，直接顯示預覽
-  if (props.taskId === 'test-task-preview') {
-    isLoading.value = false
-    generatedImageUrl.value = '' // 使用預設的 result.png
-    return
-  }
-  
-  // 開始檢查任務狀態時先顯示 loading，避免表單閃現
-  isLoading.value = true
-  await checkTaskStatus()
-})
-
-// 處理圖片 URL，使用 imageProcessApi
-function processImageUrl(imageUrl) {
-  if (!imageUrl) {
-    console.log('❌ 沒有圖片 URL')
-    return null
-  }
-  
-  console.log('🖼️ 處理圖片 URL，原始 URL:', imageUrl)
-  
-  let fullUrl = imageUrl
-  
-  // 如果圖片 URL 是相對路徑，添加 API 基礎 URL
-  if (imageUrl.startsWith('/')) {
-    fullUrl = `https://stg-line-crm.fanpokka.ai${imageUrl}`
-    console.log('🖼️ 完整圖片 URL:', fullUrl)
-  }
-  
-  // 使用新的圖片處理 API 來處理圖片
-  try {
-    console.log('🔄 使用 imageProcessApi 處理圖片:', fullUrl)
-    
-    // 從全局配置獲取圖片處理 API 設置
-    const config = window.endpoint || {}
-    const apiUrl = config.imageProcessApi || 'https://stg-api.fanpokka.ai/api/static-resource'
-    const params = config.imageProcessParams || { scale: 1.5, format: 'jpg', quality: 85, width: 600, height: 450 }
-    
-    // 構建查詢參數
-    const queryParams = new URLSearchParams()
-    queryParams.append('url', fullUrl)
-    if (params.scale) queryParams.append('scale', params.scale)
-    if (params.format) queryParams.append('format', params.format)
-    if (params.quality) queryParams.append('quality', params.quality)
-    if (params.width) queryParams.append('width', params.width)
-    if (params.height) queryParams.append('height', params.height)
-    
-    const processedImageUrl = `${apiUrl}?${queryParams.toString()}`
-    console.log('✅ 圖片處理 API URL:', processedImageUrl)
-    
-    return processedImageUrl
-  } catch (error) {
-    console.error('❌ 處理圖片時發生錯誤:', error)
-    // 如果處理失敗，返回原始圖片 URL
-    return fullUrl
-  }
+function showQrCode() {
+  if (!props.generatedImageUrl) return
+  isQrVisible.value = true
 }
 
-// 檢查任務狀態
-async function checkTaskStatus() {
-  if (!props.taskId) {
-    console.error('❌ [CheckTaskStatus Error]: 缺少任務 ID')
-    isFailed.value = true
-    isLoading.value = false
-    errorMessage.value = '系統忙碌中，將返回首頁'
-    setTimeout(() => {
-      emit('restart')
-    }, 3000)
-    return
-  }
-  
-  try {
-    errorMessage.value = ''
-    // 確保在檢查期間顯示 loading
-    isLoading.value = true
-    
-    const result = await roadshowService.checkTaskStatus(props.taskId)
-    
-    // 檢查是否為錯誤響應
-    if (result && result.success === false && result.error) {
-      // 詳細錯誤
-      console.error('❌ [CheckTaskStatus Error]:', result.error)
-      // 畫面顯示錯誤訊息
-      isFailed.value = true
-      isLoading.value = false
-      errorMessage.value = '系統忙碌中，將返回首頁'
-      setTimeout(() => {
-        emit('restart')
-      }, 3000)
-      return
-    }
-    
-    // 嘗試從不同層級提取任務數據
-    let taskData = null
-    if (result) {
-      taskData = result.data?.result || result.result || result.data || result
-      
-      // 處理任務狀態
-      if (taskData.status === 'completed' && taskData.images && taskData.images.length > 0) {
-        const rawImage = taskData.images[0]
-        
-        // 1. 處理原始圖片 URL（確保是絕對路徑，用於發簡訊）
-        // 如果是相對路徑，補上 CRM 的域名
-        if (rawImage.startsWith('/')) {
-          originalImageUrl.value = `https://stg-line-crm.fanpokka.ai${rawImage}`
-        } else {
-          originalImageUrl.value = rawImage
-        }
-        
-        // 2. 處理顯示圖片 URL（加上 imageProcessApi，用於畫面顯示）
-        const processedUrl = processImageUrl(rawImage)
-        generatedImageUrl.value = processedUrl || originalImageUrl.value // 如果處理失敗降級使用原始圖
-        
-        isLoading.value = false
-        return
-      } else if (taskData.status === 'failed') {
-        // 任務失敗：顯示錯誤訊息，3秒後跳轉回首頁
-        isFailed.value = true
-        isLoading.value = false
-        errorMessage.value = '換臉處理失敗：在目標圖片中沒有偵測到臉部'
-        console.error('❌ 任務處理失敗:', errorMessage.value)
-        // 3秒後自動跳轉回首頁
-        setTimeout(() => {
-          emit('restart')
-        }, 3000)
-        return
-      } else if (taskData.status === 'pending' || taskData.status === 'processing') {
-        // 還在處理中，顯示 loading 並在 3 秒後重試
-        isLoading.value = true
-        setTimeout(checkTaskStatus, 3000)
-        return
-      }
-    } else {
-      // 詳細錯誤
-      console.error('❌ [CheckTaskStatus Error]: 無法獲取任務狀態，result:', result)
-      // 畫面顯示錯誤訊息
-      isFailed.value = true
-      isLoading.value = false
-      errorMessage.value = '系統忙碌中，將返回首頁'
-      setTimeout(() => {
-        emit('restart')
-      }, 3000)
-      return
-    }
-  } catch (err) {
-    // 詳細錯誤
-    console.error('❌ [CheckTaskStatus Error]:', err)
-    // 畫面顯示錯誤訊息
-    isFailed.value = true
-    isLoading.value = false
-    errorMessage.value = '系統忙碌中，將返回首頁'
-    setTimeout(() => {
-      emit('restart')
-    }, 3000)
-  }
-}
-
-// 處理表單送出
-async function handleSubmit() {
-  if (!isFormValid.value || isSubmitting.value) return
-  
-  try {
-    isSubmitting.value = true
-    errorMessage.value = ''
-    successMessage.value = ''
-    
-    // 根據模式決定傳送的參數
-    let smsParams
-    if (props.isKioskMode) {
-      // Kiosk 模式：只傳電話和圖片 URL，加上 fromKiosk 標記
-      // 使用原始圖片 URL，而不是處理後的 API URL
-      smsParams = {
-        phone: formData.value.phone,
-        img_url: originalImageUrl.value || generatedImageUrl.value,
-        fromKiosk: true
-      }
-    } else {
-      // 手機版：傳送所有欄位
-      // 使用原始圖片 URL，而不是處理後的 API URL
-      smsParams = {
-        name: formData.value.name,
-        phone: formData.value.phone,
-        email: formData.value.email,
-        img_url: originalImageUrl.value || generatedImageUrl.value
-      }
-    }
-    
-    // 調用後端 API 發送簡訊
-    const response = await roadshowService.sendSMS(smsParams)
-    
-    if (response.success) {
-      // 使用 API 返回的訊息或預設訊息
-      const message = response.data?.message || '簡訊發送成功'
-      successMessage.value = `✅ ${message}`
-      
-      // 切換到結果顯示模式，顯示生成的圖片
-      showResultImage.value = true
-    } else {
-      // API 返回錯誤
-      // 詳細錯誤
-      console.error('❌ [Submit Error]:', response.error)
-      // 畫面顯示錯誤訊息（不直接顯示 error.message）
-      errorMessage.value = '網路連線異常，請稍後再試'
-    }
-    
-  } catch (error) {
-    // 詳細錯誤
-    console.error('❌ [Submit Error]:', error)
-    // 畫面顯示錯誤訊息
-    errorMessage.value = '網路連線異常，請稍後再試'
-  } finally {
-    isSubmitting.value = false
-  }
-}
-
-// 處理關閉並回到首頁
-function handleCloseAndRestart() {
+function restart() {
   emit('restart')
 }
 </script>
+
+<style scoped>
+.result-image-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+}
+
+.result-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.empty-result {
+  color: #202020;
+  text-align: center;
+}
+
+.action-row {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.asset-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.asset-button img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+:global(.enterprise-page-kiosk) .result-image-wrap {
+  width: 640px;
+  height: 780px;
+}
+
+:global(.enterprise-page-kiosk) .empty-result {
+  font-size: 36px;
+}
+
+:global(.enterprise-page-kiosk) .action-row {
+  width: 720px;
+  gap: 36px;
+  margin-top: auto;
+}
+
+:global(.enterprise-page-mobile) .result-image-wrap {
+  width: 292px;
+  height: 360px;
+}
+
+:global(.enterprise-page-mobile) .empty-result {
+  font-size: 18px;
+}
+
+:global(.enterprise-page-mobile) .action-row {
+  width: 292px;
+  gap: 14px;
+  margin-top: auto;
+}
+</style>

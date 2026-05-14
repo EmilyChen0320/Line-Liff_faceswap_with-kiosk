@@ -15,39 +15,33 @@
             @enter-face-swap="enterFaceSwap"
           />
 
-          <!-- Face Swap Template Selection -->
-          <FaceSwapTemplateSelection
-            v-if="currentStep === 'template-selection'"
-            :userUsage="userUsage"
-            :userId="userId"
-            :isPCMode="isPCMode"
-            @next-step="handleTemplateSelection"
-            @back="goBack"
+          <EnterpriseGenderSelection
+            v-if="currentStep === 'gender-selection'"
+            :initialGender="selectedGender"
+            @next-step="handleGenderSelection"
+            @home="handleRestart"
           />
 
-          <!-- Face Swap Upload (Mobile) -->
+          <EnterpriseTemplateSelection
+            v-if="currentStep === 'template-selection'"
+            :selectedGender="selectedGender"
+            :initialTemplate="selectedTemplate"
+            @next-step="handleTemplateSelection"
+            @home="handleRestart"
+          />
+
           <FaceSwapUpload
             v-if="currentStep === 'upload'"
             :selectedTemplate="selectedTemplate"
-            :userUsage="userUsage"
-            :userId="userId"
-            :isPCMode="isPCMode"
-            @back="goBack"
+            :selectedGender="selectedGender"
+            :isGenerating="isGenerating"
+            @home="handleRestart"
             @generate="handleGenerate"
-            @showHistory="handleShowHistory"
           />
 
-          <!-- Face Swap Result -->
           <FaceSwapResult
             v-if="currentStep === 'result'"
-            :taskId="taskId"
-            :userId="userId"
-            :selectedTemplate="selectedTemplate"
-            :userUsage="userUsage"
-            :isPCMode="isPCMode"
-            @back="goBack"
-            @regenerate="handleRegenerate"
-            @download="handleDownload"
+            :generatedImageUrl="generatedImageUrl"
             @restart="handleRestart"
           />
         </div>
@@ -62,49 +56,40 @@
         @enter-face-swap="enterFaceSwap"
       />
 
-      <!-- Kiosk Template Selection -->
-      <FaceSwapTemplateSelection
-        v-if="currentStep === 'template-selection'"
-        :userUsage="userUsage"
-        :userId="userId"
-        :isPCMode="isPCMode"
-        :isKioskMode="isKioskMode"
-        @next-step="handleTemplateSelection"
-        @back="goBack"
+      <EnterpriseGenderSelection
+        v-if="currentStep === 'gender-selection'"
+        :isKioskMode="true"
+        :initialGender="selectedGender"
+        @next-step="handleGenderSelection"
+        @home="handleRestart"
       />
 
-      <!-- Kiosk Character Selection -->
-      <FaceSwapCharacterSelection
-        v-if="currentStep === 'character-selection'"
-        :selectedTemplate="selectedTemplate"
-        :isKioskMode="isKioskMode"
-        @next-step="handleCharacterSelection"
-        @back="goBack"
+      <EnterpriseTemplateSelection
+        v-if="currentStep === 'template-selection'"
+        :selectedGender="selectedGender"
+        :isKioskMode="true"
+        :initialTemplate="selectedTemplate"
+        @next-step="handleTemplateSelection"
+        @home="handleRestart"
       />
 
       <!-- Kiosk Camera Capture (串流服務) -->
       <FaceSwapCameraCapture
         v-if="currentStep === 'upload'"
         :selectedTemplate="selectedTemplate"
-        :selectedCharacter="selectedCharacter"
+        :selectedCharacter="''"
         :isKioskMode="isKioskMode"
         @captured="handleCameraCapture"
         @generate="handleCameraGenerate"
         @back="goBack"
+        @home="handleRestart"
       />
 
       <!-- Kiosk Result -->
       <FaceSwapResult
         v-if="currentStep === 'result'"
-        :taskId="taskId"
-        :userId="userId"
-        :selectedTemplate="selectedTemplate"
-        :userUsage="userUsage"
-        :isPCMode="isPCMode"
+        :generatedImageUrl="generatedImageUrl"
         :isKioskMode="true"
-        @back="goBack"
-        @regenerate="handleRegenerate"
-        @download="handleDownload"
         @restart="handleRestart"
       />
     </template>
@@ -112,16 +97,18 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeMount, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeMount } from 'vue'
 import FaceSwapHomepage from './components/FaceSwapHomepage.vue'
-import FaceSwapTemplateSelection from './components/FaceSwapTemplateSelection.vue'
-import FaceSwapCharacterSelection from './components/FaceSwapCharacterSelection.vue'
+import EnterpriseGenderSelection from './components/EnterpriseGenderSelection.vue'
+import EnterpriseTemplateSelection from './components/EnterpriseTemplateSelection.vue'
 import FaceSwapUpload from './components/FaceSwapUpload.vue'
 import FaceSwapCameraCapture from './components/FaceSwapCameraCapture.vue'
 import FaceSwapResult from './components/FaceSwapResult.vue'
 import FormPage from './components/FormPage.vue'
-import { roadshowService } from '../services/roadshowService.js'
+import { aliImageStudioService } from '../services/aliImageStudioService.js'
 import { deviceService } from '../services/deviceService.js'
+import { getEnterpriseTemplateApiId } from '../config/enterpriseDay.js'
+import { imageUrls } from '../config/imageUrls.js'
 
 // Kiosk 專用組件
 import KioskHomepage from './components/kiosk/KioskHomepage.vue'
@@ -133,8 +120,10 @@ import KioskHomepage from './components/kiosk/KioskHomepage.vue'
 const taskId = ref('')
 const userId = ref('') // 等待裝置服務初始化
 const currentStep = ref('faceswap-home') // 初始狀態設定為換臉首頁
+const selectedGender = ref('')
 const selectedTemplate = ref('')
-const selectedCharacter = ref('') // Kiosk 模式下選擇的角色
+const generatedImageUrl = ref('')
+const isGenerating = ref(false)
 const isInitialized = ref(false)
 const userUsage = ref(0) // 用戶已生成的圖片數量
 
@@ -215,21 +204,24 @@ async function initializeApp() {
     
     // 重置所有狀態，確保重整後是乾淨的狀態
     currentStep.value = 'faceswap-home'
+    selectedGender.value = ''
     selectedTemplate.value = ''
+    generatedImageUrl.value = ''
     taskId.value = ''
     
     // 如果有 URL 參數，設置對應的步驟（用於測試/預覽）
     if (stepParam) {
       console.log('🔍 檢測到 URL 參數 step:', stepParam)
       
-      const validSteps = ['faceswap-home', 'template-selection', 'character-selection', 'upload', 'result']
+      const validSteps = ['faceswap-home', 'gender-selection', 'template-selection', 'upload', 'result']
       if (validSteps.includes(stepParam)) {
         currentStep.value = stepParam
         
-        // 如果是結果頁，需要設置測試用的 taskId 和模板
         if (stepParam === 'result') {
           taskId.value = testTaskId || 'test-task-preview'
-          selectedTemplate.value = 'play' // 測試用預設模板
+          selectedGender.value = 'female'
+          selectedTemplate.value = 'sanliTv'
+          generatedImageUrl.value = imageUrls.result
           console.log('📋 測試模式：結果頁，taskId:', taskId.value)
           
           // 測試模式下直接返回，不繼續後續初始化
@@ -245,35 +237,7 @@ async function initializeApp() {
       console.log('用戶 ID 未設置，顯示臉部交換首頁')
       return
     }
-    
-    // 查詢歷史 avatars（僅用於更新用戶使用量，不改變頁面狀態）
-    if (userId.value) {
-      try {
-        console.log(`查詢用戶 ${userId.value} 的歷史 avatars`)
-        const data = await roadshowService.getUserHistory(userId.value)
-        
-        // 使用與FaceSwapHistory相同的相容性檢查
-        let avatars = [];
-        
-        if (Array.isArray(data)) {
-          // 如果直接返回陣列
-          avatars = data;
-        } else if (data && typeof data === 'object') {
-          // 如果是物件格式
-          avatars = data.result?.avatars || data.data?.avatars || data.avatars || [];
-        }
-        
-        // 更新用戶使用量
-        userUsage.value = avatars.length
-        console.log('📊 用戶使用量已更新:', userUsage.value)
-        
-        // 重整後總是回到首頁，不自動跳轉到結果頁面
-        console.log('重整後回到首頁')
-      } catch (e) {
-        console.error('查詢歷史 avatars 時發生錯誤:', e)
-        // 錯誤時保持首頁狀態
-      }
-    }
+    userUsage.value = 0
   } catch (error) {
     console.error('初始化過程發生錯誤:', error)
     // 錯誤時保持首頁狀態
@@ -281,31 +245,6 @@ async function initializeApp() {
   
   isInitialized.value = true
   console.log('=== 換臉應用程序初始化完成 ===')
-}
-
-// 添加一個單獨的函數來刷新用戶使用量
-async function refreshUserUsage() {
-  try {
-    const data = await roadshowService.getUserHistory(userId.value)
-    
-    // 使用與FaceSwapHistory相同的相容性檢查
-    let avatars = [];
-    
-    if (Array.isArray(data)) {
-      // 如果直接返回陣列
-      avatars = data;
-    } else if (data && typeof data === 'object') {
-      // 如果是物件格式
-      avatars = data.result?.avatars || data.data?.avatars || data.avatars || [];
-    }
-    
-    // 更新用戶使用量
-    userUsage.value = avatars.length
-    return avatars.length
-  } catch (error) {
-    console.error('❌ 刷新用戶使用量失敗:', error)
-    return 0
-  }
 }
 
 // 在掛載前執行初始化
@@ -324,34 +263,22 @@ onMounted(async () => {
     taskId: taskId.value,
     userUsage: userUsage.value
   })
-  
-  // 組件掛載後，再次刷新用戶使用量以確保數據準確
-  if (userId.value && isInitialized.value) {
-    await refreshUserUsage()
-  }
 })
 
 // 進入臉部交換工具
 function enterFaceSwap() {
+  currentStep.value = 'gender-selection'
+}
+
+function handleGenderSelection(data) {
+  selectedGender.value = data.selectedGender
+  selectedTemplate.value = ''
   currentStep.value = 'template-selection'
 }
 
 // 處理模板選擇
 function handleTemplateSelection(data) {
   selectedTemplate.value = data.selectedTemplate
-
-  // Kiosk 模式下先進入人物選擇步驟，Mobile 模式直接進入上傳步驟
-  if (isKioskMode.value) {
-    currentStep.value = 'character-selection'
-  } else {
-    currentStep.value = 'upload'
-  }
-}
-
-// 處理人物選擇 (Kiosk 模式)
-function handleCharacterSelection(data) {
-  selectedTemplate.value = data.selectedTemplate
-  selectedCharacter.value = data.selectedCharacter
   currentStep.value = 'upload'
 }
 
@@ -362,145 +289,64 @@ function handleCameraCapture(imageFile) {
 
 // Handle camera generate (Kiosk mode)
 async function handleCameraGenerate(imageFile) {
-  console.log('📤 開始生成（相機模式）')
-
-  try {
-    const templateId = selectedTemplate.value
-
-    // Create FormData
-    const formData = new FormData()
-    formData.append('userId', userId.value || 'abc') // 修正參數名為 userId
-    formData.append('file', imageFile)
-
-    // 將字符串模板ID轉換為對應的數字ID (1,2,3,4)
-    const templateIdMap = {
-      'play': '1',     // 綜藝玩很大 → 模板 1
-      'wife': '2',     // 犀利人妻 → 模板 2
-      'love': '3',     // 命中註定我愛你 → 模板 3
-      'super': '4'     // 超級夜總會 → 模板 4
-    };
-    const numericTemplateId = templateIdMap[templateId] || '1';
-    formData.append('template_id', numericTemplateId)
-
-    // 根據選擇的角色計算 target_face_index（與LINE模式一致）
-    function getFaceIndex(templateId, characterId) {
-      if (templateId === 'play') {
-        // 模板1 (綜藝玩很大)：吳宗憲在中間，face_index = 1
-        return 1;
-      } else if (templateId === 'wife') {
-        // 模板2 (犀利人妻)：3個人都支援換臉
-        const wifeMapping = { 'character1': 0, 'character2': 1, 'character3': 2 };
-        return wifeMapping[characterId] || 0;
-      } else if (templateId === 'love') {
-        // 模板3 (命中註定我愛你)：2個人都支援換臉
-        const loveMapping = { 'character1': 0, 'character2': 1 };
-        return loveMapping[characterId] || 0;
-      } else if (templateId === 'super') {
-        // 模板4 (超級夜總會)：3個人都支援換臉
-        const superMapping = { 'character1': 0, 'character2': 1, 'character3': 2 };
-        return superMapping[characterId] || 0;
-      }
-      return 0;
-    }
-
-    const targetFaceIndex = getFaceIndex(templateId, selectedCharacter.value)
-    formData.append('target_face_index', targetFaceIndex)
-    formData.append('userInfo', `選擇的角色: ${selectedCharacter.value}`)
-
-    // Call API
-    const result = await roadshowService.generateAvatar(formData)
-
-    if (result && (result.success || result.status === 'success')) {
-      console.log('✅ 生成任務已提交:', result.result)
-      taskId.value = result.result?.task_id || result.result?.id || result.result
-
-      // Navigate to result page
-      await nextTick()
-      currentStep.value = 'result'
-    } else if (result && result.error) {
-      console.error('❌ 生成失敗:', result.error)
-      alert(result.error.message || result.error || '生成失敗，請重試')
-    } else {
-      console.error('❌ 生成失敗:', result)
-      alert('生成失敗，請重試')
-    }
-  } catch (error) {
-    console.error('❌ 生成過程發生錯誤:', error)
-    alert('生成失敗，請重試')
-  }
+  await generateEnterpriseImage(imageFile)
 }
 
 // 處理生成請求
-function handleGenerate(data) {
-  // 保存任務ID和模板信息
-  taskId.value = data.taskId
-  // 保存選擇的模板ID（從data中獲取）
-  if (data.selectedTemplate) {
-    selectedTemplate.value = data.selectedTemplate
+async function handleGenerate(imageFile) {
+  await generateEnterpriseImage(imageFile)
+}
+
+async function generateEnterpriseImage(imageFile) {
+  if (!selectedTemplate.value) {
+    alert('請先選擇 IP')
+    currentStep.value = 'template-selection'
+    return
   }
-  
-  // 更新用戶使用量（生成新圖片後數量+1）
-  userUsage.value += 1
-  
-  // 生成完成後，也從服務器刷新一次以確保數據準確
-  setTimeout(async () => {
-    await refreshUserUsage()
-  }, 1000)
-  
-  // 生成完成後導航到結果頁面
-  currentStep.value = 'result'
+
+  try {
+    isGenerating.value = true
+    const templateApiId = getEnterpriseTemplateApiId(selectedTemplate.value)
+    console.log('📤 Ali Image Studio 生圖:', {
+      templateApiId,
+      selectedTemplate: selectedTemplate.value,
+      selectedGender: selectedGender.value,
+      file: imageFile?.name,
+    })
+
+    const result = await aliImageStudioService.generateFromTemplate(templateApiId, imageFile)
+    generatedImageUrl.value = result.outputUrl
+    taskId.value = String(result.id || '')
+    userUsage.value += 1
+    currentStep.value = 'result'
+  } catch (error) {
+    console.error('❌ 企業日生圖失敗:', error)
+    alert(`生成失敗：${error.message || '請重新再試'}`)
+    if (isKioskMode.value) {
+      currentStep.value = 'template-selection'
+    }
+  } finally {
+    isGenerating.value = false
+  }
 }
 
-// 處理重新生成
-function handleRegenerate() {
-  // 返回到模板選擇步驟重新開始
-  currentStep.value = 'template-selection'
-}
-
-// 處理下載到官方帳號
-function handleDownload() {
-  // 在這裡可以調用下載 API
-}
-
-// Handle restart (Kiosk mode)
 function handleRestart() {
-  console.log('🔄 重新開始（Kiosk 模式）')
-  // Reset to homepage
   currentStep.value = 'faceswap-home'
   taskId.value = ''
+  selectedGender.value = ''
   selectedTemplate.value = ''
-}
-
-// 處理顯示歷史頁面
-async function handleShowHistory() {
-  // 確保userId有值
-  if (!userId.value) {
-    initializeDevice()
-    if (!userId.value) {
-      userId.value = deviceService.generateUserId(deviceMode.value)
-    }
-  }
-  
-  // 跳轉到結果頁面，然後顯示歷史
-  currentStep.value = 'result'
-  // 設置一個標記，讓結果頁面知道要顯示歷史
-  // 我們可以通過修改selectedTemplate來傳遞這個信息
-  selectedTemplate.value = 'show_history'
+  generatedImageUrl.value = ''
+  isGenerating.value = false
 }
 
 // 返回上一步
 function goBack() {
-  if (currentStep.value === 'template-selection') {
+  if (currentStep.value === 'gender-selection') {
     currentStep.value = 'faceswap-home'
-  } else if (currentStep.value === 'character-selection') {
-    currentStep.value = 'template-selection'
+  } else if (currentStep.value === 'template-selection') {
+    currentStep.value = 'gender-selection'
   } else if (currentStep.value === 'upload') {
-    // Kiosk 模式下從相機回到人物選擇，Mobile 模式回到模板選擇
-    if (isKioskMode.value) {
-      currentStep.value = 'character-selection'
-    } else {
-      currentStep.value = 'template-selection'
-    }
+    currentStep.value = 'template-selection'
   } else if (currentStep.value === 'result') {
     currentStep.value = 'upload'
   }
@@ -510,7 +356,7 @@ function goBack() {
 
 <style scoped>
 .app {
-  font-family: 'Noto Sans TC', 'Inter', sans-serif;
+  font-family: 'MonaChaoGangHei', 'Noto Sans TC', sans-serif;
   overflow-x: hidden;
   background-color: #000000;
 }
@@ -547,16 +393,5 @@ function goBack() {
   overflow-y: auto;
   overflow-x: hidden;
   position: relative;
-}
-
-/* 當螢幕不是精確 1080x1920 時，Kiosk 模式置中顯示 */
-@media not all and (width: 1080px) and (height: 1920px) {
-  .app-kiosk {
-    /* 在非標準尺寸螢幕上置中 */
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-  }
 }
 </style>

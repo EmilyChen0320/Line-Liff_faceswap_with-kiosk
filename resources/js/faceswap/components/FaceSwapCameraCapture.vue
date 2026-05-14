@@ -1,56 +1,35 @@
 <template>
-  <div class="relative bg-black min-h-screen w-full flex flex-col">
+  <div :class="['relative bg-black flex flex-col overflow-hidden', isKioskMode ? 'w-[1080px] h-[1920px]' : 'w-full min-h-screen']">
+    <div class="absolute inset-0 enterprise-camera-bg" :style="{ backgroundImage: `url(${imageUrls.enterprise.background})` }"></div>
+    <button class="camera-home-button" type="button" @click="goHome" @touchend.prevent="goHome">
+      <img :src="imageUrls.enterprise.backIcon" alt="" draggable="false" />
+      <img :src="imageUrls.enterprise.backText" alt="回首頁" draggable="false" />
+    </button>
     <!-- Header -->
-    <div :class="isKioskMode ? 'pt-16 pb-12' : 'py-4'" class="flex gap-5 justify-center items-center px-12 w-full font-bold">
+    <div :class="isKioskMode ? 'pt-20 pb-8' : 'py-4'" class="relative z-10 flex gap-5 justify-center items-center px-12 w-full font-bold">
       <img
-        :src="imageUrls.header"
-        :class="isKioskMode ? 'h-48' : 'h-11'"
+        :src="imageUrls.enterprise.logo"
+        :class="isKioskMode ? 'w-[580px]' : 'h-11'"
         class="object-contain"
-        alt="2025三立集團內容創新發布會"
+        alt="2026 企業日"
       />
     </div>
-    
-    <!-- 分隔線 (僅手機版) -->
-    <div v-if="!isKioskMode" class="w-full border-t border-[#EBD8B2] opacity-30"></div>
 
-    <!-- 步驟進度條 (手機版) -->
-    <div v-if="!isKioskMode" 
-      class="flex max-w-full w-[202px] text-base font-bold text-center text-[#EBD8B2] whitespace-nowrap mx-auto mt-6"
-    >
-      <img :src="imageUrls.step1" class="w-6 h-6 object-contain" alt="Step 1">
-      <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
-      <img :src="imageUrls.step2_inprogress" class="w-6 h-6 object-contain" alt="Step 2">
-      <img :src="imageUrls.horizontal" class="w-[65px] object-contain shrink-0 my-auto aspect-[32.26]">
-      <img :src="imageUrls.step3_inactive" class="w-6 h-6 object-contain" alt="Step 3">
-    </div>
-    
-
-    <!-- 步驟文字 (僅手機版) -->
-    <div v-if="!isKioskMode" 
-      class="flex justify-between max-w-full w-[218px] text-sm gap-5 text-center text-[#EBD8B2] mx-auto"
-    >
-      <div>Step 1</div>
-      <div>Step 2</div>
-      <div>Step 3</div>
-    </div>
-
-    <div :class="isKioskMode ? 'mt-16 max-w-[878px]' : 'mt-14 max-w-[338px]'" class="w-full mx-auto">
+    <div :class="isKioskMode ? 'mt-10 max-w-[878px]' : 'mt-14 max-w-[338px]'" class="relative z-10 w-full mx-auto">
       <div class="flex flex-col w-full">
         <!-- Step indicator -->
-        <div :class="isKioskMode ? 'justify-center' : ''" class="flex gap-2.5 items-center font-bold whitespace-nowrap mb-6">
-          <!-- 手機版：顯示打勾圖標 -->
-          <div v-if="!isKioskMode" class="w-6 h-6 self-stretch my-auto">
-            <img
-              :src="imageUrls.step2_inprogress"
-              class="w-6 h-6 object-contain"
-              alt="Step 3"
-            />
+        <div class="camera-step-row" aria-label="目前步驟">
+          <div
+            v-for="step in steps"
+            :key="step.id"
+            :class="['camera-step-item', step.id === 3 ? 'is-active' : '', step.id < 3 ? 'is-done' : '']"
+          >
+            <span class="camera-step-dot">{{ step.id }}</span>
+            <span class="camera-step-label">{{ step.label }}</span>
           </div>
-          <!-- Kiosk 版：顯示數字圓圈 -->
-          <div v-else class="w-16 h-16 rounded-full bg-[#EBD8B2] flex items-center justify-center flex-shrink-0">
-            <span class="text-4xl font-bold text-black">3</span>
-          </div>
-          
+        </div>
+
+        <div class="flex justify-center font-bold whitespace-nowrap mb-6">
           <div :class="isKioskMode ? 'text-5xl' : 'text-base'" class="self-stretch my-auto text-[#EBD8B2]">
             {{
               cameraState === 'countdown' ? '拍照倒數中，請勿移動' :
@@ -66,13 +45,7 @@
           <div :class="isKioskMode ? 'h-[936px]' : 'h-[360px]'" class="bg-black rounded-lg overflow-hidden relative">
         <!-- Camera Preview State (showing loading while camera initializes) -->
         <div v-if="cameraState === 'idle'" class="flex flex-col items-center justify-center h-full">
-          <!-- Kiosk: 顯示 load.png -->
-          <img 
-            v-if="isKioskMode"
-            :src="imageUrls.load"
-            alt="載入中"
-            class="w-[600px] h-[800px] object-contain mb-8"
-          />
+          <EnterpriseLoadingAnimation :class="isKioskMode ? 'w-[360px] h-[360px] mb-8' : 'w-[180px] h-[180px] mb-6'" />
           <div :class="isKioskMode ? 'text-2xl' : 'text-sm'" class="text-[#666]">正在開啟相機...</div>
         </div>
 
@@ -102,13 +75,7 @@
 
         <!-- Loading State -->
         <div v-if="cameraState === 'loading'" class="flex flex-col items-center justify-center h-full">
-          <!-- 顯示 load.png 圖片 -->
-          <img
-            :src="imageUrls.load"
-            alt="處理中"
-            :class="isKioskMode ? 'w-[700px] h-[933px] mb-16' : 'w-[300px] h-[400px] mb-6'"
-            class="object-contain"
-          />
+          <EnterpriseLoadingAnimation :class="isKioskMode ? 'w-[420px] h-[420px] mb-16' : 'w-[220px] h-[220px] mb-6'" />
           <div :class="isKioskMode ? 'text-4xl mb-6' : 'text-lg mb-2'" class="text-[#EBD8B2] font-bold">照片生成中，請稍後</div>
         </div>
           </div>
@@ -129,49 +96,41 @@
             <!-- Back Button (重選IP) - Only show when not captured -->
             <button v-if="cameraState !== 'captured'"
                     :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer hover:shadow-lg transition-all duration-300"
-                    style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25); touch-action: manipulation;"
+                    class="flex-1 flex justify-center items-center cursor-pointer transition-all duration-300 bg-transparent"
+                    style="touch-action: manipulation;"
                     @click="goBack"
                     @touchend.prevent="goBack">
-              <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#333]">
-                重選IP
-              </div>
+              <img :src="imageUrls.enterprise.retakeIpButton" alt="重選IP" class="w-full h-full object-contain" />
             </button>
 
             <!-- Take Photo Button (開始拍照) when preview is ready -->
             <button v-if="cameraState === 'preview'"
                     :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300 bg-gradient-to-r from-[#EE95FF] via-[#F192FF] via-[#B9B9FB] to-[#AFCBF7] hover:shadow-lg"
+                    class="flex-1 flex justify-center items-center cursor-pointer transition-all duration-300 bg-transparent"
                     style="touch-action: manipulation;"
                     @click="startCountdown"
                     @touchend.prevent="startCountdown">
-              <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#333]">
-                開始拍照
-              </div>
+              <img :src="imageUrls.enterprise.takePhotoButton" alt="開始拍照" class="w-full h-full object-contain" />
             </button>
 
             <!-- Retake Photo Button when captured -->
             <button v-if="cameraState === 'captured'"
                     :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer hover:shadow-lg transition-all duration-300"
-                    style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25); touch-action: manipulation;"
+                    class="flex-1 flex justify-center items-center cursor-pointer transition-all duration-300 bg-transparent"
+                    style="touch-action: manipulation;"
                     @click="retakePhoto"
                     @touchend.prevent="retakePhoto">
-              <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#333]">
-                再拍一次
-              </div>
+              <img :src="imageUrls.enterprise.retakeIpButton" alt="再拍一次" class="w-full h-full object-contain" />
             </button>
 
             <!-- Next Step Button -->
             <button v-if="cameraState === 'captured'"
                     :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center rounded-md cursor-pointer transition-all duration-300 bg-gradient-to-r from-[#EE95FF] via-[#F192FF] via-[#B9B9FB] to-[#AFCBF7] hover:shadow-lg"
+                    class="flex-1 flex justify-center items-center cursor-pointer transition-all duration-300 bg-transparent"
                     style="touch-action: manipulation;"
                     @click="nextStep"
                     @touchend.prevent="nextStep">
-              <div :class="isKioskMode ? 'text-3xl' : 'text-base'" class="font-noto-sans-tc font-bold text-[#333]">
-                下一步
-              </div>
+              <img :src="isKioskMode ? imageUrls.enterprise.nextFocusLarge : imageUrls.enterprise.nextFocusSmall" alt="下一步" class="w-full h-full object-contain" />
             </button>
           </div>
         </div>
@@ -189,12 +148,14 @@
         </div>
       </div>
     </div>
+    <img :src="imageUrls.enterprise.footer" alt="" class="absolute bottom-0 left-0 z-[1] w-full pointer-events-none" />
   </div>
 </template>
 
 <script setup>
 import { ref, onMounted, onUnmounted } from 'vue'
 import { imageUrls } from '../../config/imageUrls.js'
+import EnterpriseLoadingAnimation from './EnterpriseLoadingAnimation.vue'
 
 const props = defineProps({
   selectedTemplate: {
@@ -211,7 +172,7 @@ const props = defineProps({
   }
 })
 
-const emit = defineEmits(['captured', 'generate', 'back'])
+const emit = defineEmits(['captured', 'generate', 'back', 'home'])
 
 // Camera states: idle, preview, countdown, captured, loading
 const cameraState = ref('idle')  // Will be set to preview after camera starts
@@ -219,6 +180,13 @@ const videoElement = ref(null)
 const capturedImage = ref('')
 const countdownNumber = ref(5)
 const stream = ref(null)
+
+const steps = [
+  { id: 1, label: '選擇性別' },
+  { id: 2, label: '選擇主題' },
+  { id: 3, label: '拍照生成' },
+  { id: 4, label: '下載圖片' },
+]
 
 
 // Start camera and preview
@@ -361,6 +329,14 @@ function goBack() {
     stream.value.getTracks().forEach(track => track.stop())
     stream.value = null
   }
+  emit('home')
+}
+
+function goHome() {
+  if (stream.value) {
+    stream.value.getTracks().forEach(track => track.stop())
+    stream.value = null
+  }
   emit('back')
 }
 
@@ -379,6 +355,124 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
+.enterprise-camera-bg {
+  background-size: cover;
+  background-position: center;
+}
+
+.camera-home-button {
+  position: absolute;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.camera-home-button img:first-child {
+  width: 56px;
+}
+
+.camera-home-button img:last-child {
+  width: 168px;
+}
+
+.camera-home-button {
+  left: 54px;
+  top: 58px;
+  gap: 12px;
+}
+
+.camera-step-row {
+  display: flex;
+  width: 100%;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  margin-bottom: 44px;
+}
+
+.camera-step-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: rgba(235, 216, 178, 0.48);
+  font-size: 22px;
+  white-space: nowrap;
+}
+
+.camera-step-item:not(:last-child)::after {
+  display: block;
+  width: 38px;
+  height: 2px;
+  margin-left: 18px;
+  content: '';
+  background: rgba(235, 216, 178, 0.3);
+}
+
+.camera-step-item.is-active,
+.camera-step-item.is-done {
+  color: #EBD8B2;
+}
+
+.camera-step-dot {
+  display: inline-flex;
+  width: 42px;
+  height: 42px;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid currentColor;
+  border-radius: 999px;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.camera-step-item.is-active .camera-step-dot {
+  background: #EBD8B2;
+  color: #000;
+}
+
+@media (max-width: 600px) {
+  .camera-home-button {
+    left: 22px;
+    top: 24px;
+    gap: 5px;
+  }
+
+  .camera-home-button img:first-child {
+    width: 26px;
+  }
+
+  .camera-home-button img:last-child {
+    width: 78px;
+  }
+
+  .camera-step-row {
+    gap: 6px;
+    margin-bottom: 22px;
+  }
+
+  .camera-step-item {
+    gap: 4px;
+    font-size: 10px;
+  }
+
+  .camera-step-item:not(:last-child)::after {
+    width: 8px;
+    margin-left: 6px;
+  }
+
+  .camera-step-dot {
+    width: 20px;
+    height: 20px;
+    border-width: 1px;
+    font-size: 11px;
+  }
+}
+
 @keyframes spin-reverse {
   from {
     transform: rotate(360deg);

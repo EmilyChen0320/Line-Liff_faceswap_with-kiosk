@@ -1,610 +1,265 @@
 <template>
-  <div
-    class="relative bg-black min-h-screen w-full flex flex-col"
-  >
-    <!-- Header -->
-    <div class="flex gap-5 justify-center items-center px-12 py-4 w-full font-bold">
-      <img
-        :src="imageUrls.header"
-        class="h-11 object-contain"
-        alt="2025三立集團內容創新發布會"
-      />
-    </div>
-    
-    <!-- 分隔線 -->
-    <div class="w-full border-t border-[#EBD8B2] opacity-30"></div>
-    <!-- 步驟 -->
-    <div
-      class="flex mt-6 max-w-full text-base font-bold text-center text-[#EBD8B2] whitespace-nowrap w-[202px] mx-auto"
+  <EnterpriseInnerLayout :current-step="3" @home="goHome">
+    <button
+      class="upload-box"
+      type="button"
+      @click="triggerFileUpload"
+      @dragover.prevent
+      @drop.prevent="handleDrop"
     >
       <img
-        :src="imageUrls.finish"
-        class="w-6 h-6 object-contain"
-        alt="Step 1"
+        v-if="uploadedImagePreview"
+        :src="uploadedImagePreview"
+        :alt="uploadedImage?.name || '上傳圖片預覽'"
+        class="preview-image"
       />
-      <img
-        :src="imageUrls.horizontal"
-        class="object-contain shrink-0 my-auto aspect-[32.26] w-[65px]"
-      />
-      <img
-        :src="imageUrls.step2_inprogress"
-        class="w-6 h-6 object-contain"
-        alt="Step 2"
-      />
-      <img
-        :src="imageUrls.horizontal"
-        class="object-contain shrink-0 my-auto aspect-[32.26] w-[65px]"
-      />
-      <img
-        :src="imageUrls.step3_inactive"
-        class="w-6 h-6 object-contain"
-        alt="Step 3"
-      />
+      <div v-else class="upload-placeholder">
+        <img :src="imageUrls.upload" alt="" draggable="false" />
+        <span>點擊上傳圖片</span>
+        <small>支援 JPG、PNG、WEBP，10MB 以下</small>
+      </div>
+    </button>
+
+    <div class="upload-note">
+      請使用單人清晰正面照，避免多人合照、遮擋五官或低解析度圖片。
     </div>
-    <!-- 步驟文字 -->
-    <div
-      class="flex gap-5 justify-between max-w-full text-sm text-center text-[#EBD8B2] w-[218px] mx-auto mb-8"
+
+    <button
+      class="generate-button"
+      type="button"
+      :disabled="!uploadedImage || isGenerating"
+      @click="generate"
+      @touchend.prevent="generate"
     >
-      <div data-name="Step 1">Step 1</div>
-      <div data-name="Step 2">Step 2</div>
-      <div data-name="Step 3">Step 3</div>
-    </div>
+      <img :src="generateButtonImage" alt="下一步" draggable="false" />
+    </button>
 
-    <!-- Main Content Container -->
-    <div class="flex-1 flex flex-col max-w-md mx-auto w-full px-5">
-      <!-- Selected Template Image -->
-      <div class="mb-8">
-        <div v-if="props.selectedTemplate" class="w-full h-[273px]">
-          <img
-            class="w-full h-full object-cover rounded-md"
-            :src="getTemplateImage(props.selectedTemplate)"
-            :alt="getTemplateName(props.selectedTemplate)"
-          />
-        </div>
-        <div v-else class="w-full h-[273px] flex items-center justify-center bg-gray-700 rounded-md border-2 border-dashed border-[#EBD8B2]">
-          <div class="text-center text-[#EBD8B2]">
-            <div class="text-lg font-bold mb-2">請先選擇模板</div>
-            <div class="text-sm">請回到上一步選擇您想要的換臉模板</div>
-          </div>
-        </div>
-
-        <!-- Usage Counter -->
-        <div class="mt-4 text-right">
-          <UsageCounter v-if="!isPCMode" :currentCount="userUsage" :maxLimit="10" />
-        </div>
-      </div>
-
-      <!-- Character Selection -->
-      <div v-if="props.selectedTemplate" class="mb-8">
-        <h3 class="text-base font-bold text-center text-[#EBD8B2] mb-4">
-          請選擇要換臉的人物
-        </h3>
-        <div class="flex justify-center gap-4">
-          <button
-            v-for="(character, index) in getTemplateCharacters()"
-            :key="index"
-            class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold"
-            :class="
-              selectedCharacter === `character${index + 1}`
-                ? 'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] to-[#AFCBF7] shadow-lg text-gray-800'
-                : 'text-[#333]'
-            "
-            :style="
-              selectedCharacter === `character${index + 1}`
-                ? ''
-                : 'background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);'
-            "
-            @click="selectCharacter(`character${index + 1}`, index)"
-          >
-            {{ character }}
-          </button>
-        </div>
-
-      </div>
-
-      <!-- Upload Section -->
-      <div class="flex-1">
-        <div v-if="props.selectedTemplate">
-          <div class="flex items-center gap-3 mb-6">
-            <img
-              :src="imageUrls.step2_inprogress"
-              class="w-[26px] h-[26px] object-contain"
-              alt="Step 2 In Progress"
-            />
-            <h3 class="text-base font-bold text-[#EBD8B2]">
-              請上傳一張正面清晰的原始圖片
-            </h3>
-          </div>
-
-          <!-- Upload Area -->
-          <div class="mb-6">
-            <div
-              class="flex h-[200px] flex-col items-center justify-center gap-5 border-2 border-dashed border-[#EBD8B2] bg-[#969696] cursor-pointer hover:bg-[#a0a0a0] transition-colors rounded-md"
-              @click="triggerFileUpload"
-              @dragover.prevent
-              @drop.prevent="handleDrop"
-            >
-              <div v-if="!uploadedImage" class="flex flex-col items-center gap-3">
-                <!-- Upload Icon -->
-                <div class="w-[50px] h-[35px] relative">
-                  <img
-                    :src="imageUrls.upload"
-                    alt="Upload Icon"
-                    class="w-[50px] h-[35px] object-contain"
-                  />
-                </div>
-                <div class="text-base font-medium text-[#333] text-center">
-                  點擊上傳
-                </div>
-                <div class="text-sm font-medium text-[#333] text-center">
-                  支援 JPG, PNG 格式
-                </div>
-              </div>
-              <div v-else class="w-full h-full">
-                <!-- 圖片預覽 -->
-                <img
-                  :src="uploadedImagePreview"
-                  :alt="uploadedImage.name"
-                  class="w-full h-full object-contain rounded-md bg-gray-800"
-                />
-              </div>
-            </div>
-          </div>
-
-          <!-- Upload Instructions -->
-          <div class="mb-8">
-            <h4 class="text-sm font-bold text-white mb-3">上傳注意事項：</h4>
-            <div class="text-[13px] font-normal text-white space-y-2">
-              <div>1.請上傳單人清晰正面照，避免多人合照，以利準確辨識</div>
-              <div>2.僅支援人像照片，請勿上傳風景、動物或其他非人物圖片</div>
-              <div>3.請確保臉部五官完整可見，避免口罩、手部、頭髮等遮擋</div>
-              <div>4.避免模糊、晃動或低解析度圖片，以免影響生成品質</div>
-            </div>
-          </div>
-
-          <!-- Action Buttons -->
-          <div class="flex gap-3 mb-8">
-            <button
-              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer hover:shadow-lg transition-all duration-300 text-base font-bold text-[#333]"
-              style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
-              @click="goBack"
-            >
-              重選範本
-            </button>
-            <button
-              class="flex-1 h-11 px-3 py-3 justify-center items-center rounded-md cursor-pointer transition-all duration-300 text-base font-bold"
-              :class="
-                canGenerate
-                  ? 'bg-gradient-to-r from-[#EE95FF] via-[#F192FF] via-[#B9B9FB] to-[#AFCBF7] hover:shadow-lg text-gray-800'
-                  : 'bg-[#C7C7C7] text-white'
-              "
-              @click="generateFaceSwap"
-              :disabled="!canGenerate"
-            >
-              開始生成
-            </button>
-          </div>
-        </div>
-        <div v-else class="text-center text-[#EBD8B2] py-8">
-          <div class="text-lg font-bold mb-4">無法進行換臉操作</div>
-          <div class="text-sm mb-6">您需要先選擇一個模板才能繼續</div>
-          <button
-            class="px-6 py-3 text-[#333] rounded-md font-bold hover:shadow-lg transition-all duration-300"
-            style="background: radial-gradient(50% 50% at 50% 50%, #FFF8E9 0%, #DEC799 100%); box-shadow: 0 1px 4px 0 rgba(0, 0, 0, 0.25);"
-            @click="goBack"
-          >
-            返回選擇模板
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Hidden File Input -->
     <input
       ref="fileInput"
       type="file"
-      accept="image/jpeg,image/jpg,image/png"
+      accept="image/jpeg,image/jpg,image/png,image/webp"
       class="hidden"
       @change="handleFileSelect"
     />
 
-    <!-- 生成中彈窗 -->
-    <div
-      v-if="isGenerating"
-      class="fixed inset-0 bg-white bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div class="flex flex-col items-center justify-center gap-4">
-        <!-- 第一個彈窗：上傳中 -->
-        <div
-          v-if="showFirstDialog"
-          class="bg-white rounded-md p-6 w-[202px] h-[116px] flex flex-col items-center justify-center gap-4"
-        >
-          <div class="text-lg font-bold text-gray-800">上傳中...</div>
-          <div class="text-sm text-gray-600 text-center">請勿關閉視窗</div>
-        </div>
-
-        <!-- 第二個彈窗：生產進行中 -->
-        <div
-          v-if="showSecondDialog"
-          class="bg-white rounded-md p-6 w-[288px] h-[116px] flex flex-col items-center justify-center gap-4"
-        >
-          <div class="text-lg font-bold text-gray-800">生產正在進行中！</div>
-          <div class="text-sm text-gray-600 text-center">
-            如使用人數眾多可能會花費較多時間，可以稍後再回來查看唷！
-          </div>
-        </div>
+    <div v-if="isGenerating" class="loading-overlay">
+      <div class="loading-card">
+        <EnterpriseLoadingAnimation class="loading-animation" />
+        <p>圖片生成中，請稍候</p>
       </div>
     </div>
-  </div>
+  </EnterpriseInnerLayout>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
-import { onUnmounted } from "vue";
-import { roadshowService } from "../../services/roadshowService.js";
-import UsageCounter from "./UsageCounter.vue";
+import { computed, onUnmounted, ref } from 'vue'
 import { imageUrls } from '@/config/imageUrls'
+import EnterpriseInnerLayout from './EnterpriseInnerLayout.vue'
+import EnterpriseLoadingAnimation from './EnterpriseLoadingAnimation.vue'
 
 const props = defineProps({
-  selectedTemplate: {
-    type: String,
-    default: ''
-  },
-  userUsage: {
-    type: Number,
-    default: 0
-  },
-  userId: {
-    type: String,
-    default: ''
-  },
-  isPCMode: {
+  isGenerating: {
     type: Boolean,
-    default: false
-  }
-});
+    default: false,
+  },
+})
 
-const emit = defineEmits(["back", "generate", "showHistory"]);
+const emit = defineEmits(['home', 'generate'])
 
-// 根據模板 ID 和角色選擇，返回正確的 face_index
-const getFaceIndex = (templateId, characterId) => {
-  if (templateId === 'play') {
-    // 模板1 (綜藝玩很大)：吳宗憲在中間，face_index = 1
-    // 0=左邊角色(不支援換臉), 1=中間吳宗憲(支援換臉), 2=右邊角色(不支援換臉)
-    return 1;
-  } else if (templateId === 'wife') {
-    // 模板2 (犀利人妻)：3個人都支援換臉
-    const wifeMapping = { 'character1': 0, 'character2': 1, 'character3': 2 };
-    return wifeMapping[characterId] || 0;
-  } else if (templateId === 'love') {
-    // 模板3 (命中註定我愛你)：2個人都支援換臉
-    const loveMapping = { 'character1': 0, 'character2': 1 };
-    return loveMapping[characterId] || 0;
-  } else if (templateId === 'super') {
-    // 模板4 (超級夜總會)：3個人都支援換臉
-    const superMapping = { 'character1': 0, 'character2': 1, 'character3': 2 };
-    return superMapping[characterId] || 0;
-  }
-  
-  // 預設值
-  return 0;
-};
+const uploadedImage = ref(null)
+const uploadedImagePreview = ref('')
+const fileInput = ref(null)
 
-// 模板對應的角色選項 - 只保留需要的 4 個模板
-const templateCharacters = {
-  'play': ['吳宗憲'],                    // 模板 10 (綜藝玩很大)：1個人
-  'wife': ['朱芯儀', '溫昇豪', '隋棠'],  // 模板 8 (犀利人妻)：3個人
-  'love': ['陳喬恩', '阮經天'],          // 模板 9 (命中註定我愛你)：2個人
-  'super': ['許效舜', '苗可麗', '澎恰恰'] // 模板 11 (超級夜總會)：3個人
-};
-
-const selectedCharacter = ref("");
-const uploadedImage = ref(null);
-const uploadedImagePreview = ref(null);
-const fileInput = ref(null);
-const isGenerating = ref(false);
-const showFirstDialog = ref(false);
-const showSecondDialog = ref(false);
-
-
-const canGenerate = computed(() => {
-  return props.selectedTemplate && selectedCharacter.value && uploadedImage.value;
-});
-
-function selectCharacter(characterId, index) {
-  selectedCharacter.value = characterId;
-  console.log('👤 選擇角色:', characterId, '索引:', index);
-}
-
-function getTemplateCharacters() {
-  const templateId = props.selectedTemplate;
-  
-  if (templateId && templateCharacters[templateId]) {
-    return templateCharacters[templateId];
-  }
-  
-  // 當沒有選擇模板時返回空陣列
-  return [];
-}
-
-function getTemplateImage(templateKey) {
-  const imageMap = {
-    'play': imageUrls.play,   // 綜藝玩很大
-    'wife': imageUrls.wife,   // 犀利人妻
-    'love': imageUrls.love,   // 命中註定我愛你
-    'super': imageUrls.super  // 超級夜總會
-  };
-  
-  return imageMap[templateKey] || imageUrls.play;
-}
-
-function getTemplateName(templateId) {
-  // 根據模板 ID 返回對應的名稱
-  const nameMap = {
-    'play': '綜藝玩很大',
-    'wife': '犀利人妻',
-    'love': '命中註定我愛你',
-    'super': '超級夜總會'
-  };
-  
-  return nameMap[templateId] || '';
-}
+const generateButtonImage = computed(() => {
+  return uploadedImage.value ? imageUrls.enterprise.nextFocusSmall : imageUrls.enterprise.nextDisabledSmall
+})
 
 function triggerFileUpload() {
-  fileInput.value?.click();
+  fileInput.value?.click()
+}
+
+function setUploadedFile(file) {
+  if (!file) return
+
+  const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+  const maxSize = 10 * 1024 * 1024
+
+  if (!allowedTypes.includes(file.type)) {
+    alert('請上傳 JPG、PNG 或 WEBP 圖片')
+    return
+  }
+
+  if (file.size > maxSize) {
+    alert('圖片大小不可超過 10MB')
+    return
+  }
+
+  if (uploadedImagePreview.value) {
+    URL.revokeObjectURL(uploadedImagePreview.value)
+  }
+
+  uploadedImage.value = file
+  uploadedImagePreview.value = URL.createObjectURL(file)
 }
 
 function handleFileSelect(event) {
-  const file = event.target.files[0];
-  if (file) {
-    uploadedImage.value = file;
-    // 創建預覽URL
-    uploadedImagePreview.value = URL.createObjectURL(file);
-  }
+  setUploadedFile(event.target.files?.[0])
 }
 
 function handleDrop(event) {
-  const files = event.dataTransfer.files;
-  if (files.length > 0) {
-    const file = files[0];
-    if (file.type.startsWith("image/")) {
-      uploadedImage.value = file;
-      // 創建預覽URL
-      uploadedImagePreview.value = URL.createObjectURL(file);
-    }
-  }
+  setUploadedFile(event.dataTransfer.files?.[0])
 }
 
-
-
-function goBack() {
-  // 清理預覽URL以避免內存洩漏
-  if (uploadedImagePreview.value) {
-    URL.revokeObjectURL(uploadedImagePreview.value);
-    uploadedImagePreview.value = null;
-  }
-  uploadedImage.value = null;
-  // 重置彈窗狀態
-  isGenerating.value = false;
-  showFirstDialog.value = false;
-  showSecondDialog.value = false;
-  emit("back");
+function generate() {
+  if (!uploadedImage.value || props.isGenerating) return
+  emit('generate', uploadedImage.value)
 }
 
-async function generateFaceSwap() {
-  if (canGenerate.value) {
-    isGenerating.value = true;
-    showFirstDialog.value = true;
-    
-    try {
-      // 驗證上傳的檔案
-      if (!uploadedImage.value) {
-        throw new Error('未選擇圖片檔案');
-      }
-      
-      // 檢查檔案類型和大小1;
-      const file = uploadedImage.value;
-      const maxSize = 10 * 1024 * 1024; // 10MB
-      const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
-      
-      console.log('📁 檔案資訊:', {
-        name: file.name,
-        type: file.type,
-        size: file.size,
-        sizeMB: (file.size / 1024 / 1024).toFixed(2) + 'MB',
-        lastModified: new Date(file.lastModified).toISOString()
-      });
-      // 單獨輸出以便查看
-      console.log('📁 檔案名稱:', file.name);
-      console.log('📁 檔案類型:', file.type);
-      console.log('📁 檔案大小:', file.size, 'bytes', '(', (file.size / 1024 / 1024).toFixed(2), 'MB)');
-      
-      if (!allowedTypes.includes(file.type)) {
-        throw new Error('不支援的檔案格式，請上傳 JPG 或 PNG 格式的圖片');
-      }
-      
-      if (file.size > maxSize) {
-        throw new Error('檔案大小超過 10MB，請選擇較小的圖片');
-      }
-      
-      // 使用新的 getFaceIndex 函數獲取正確的 face_index
-      const targetFaceIndex = getFaceIndex(props.selectedTemplate, selectedCharacter.value)
-      
-      console.log('🎯 生成參數:', {
-        template: props.selectedTemplate,
-        character: selectedCharacter.value,
-        targetFaceIndex: targetFaceIndex,
-        userId: props.userId
-      });
-      // 單獨輸出以便查看
-      console.log('🎯 模板 ID (字串):', props.selectedTemplate);
-      console.log('🎯 角色選擇:', selectedCharacter.value);
-      console.log('🎯 Target Face Index:', targetFaceIndex);
-      console.log('🎯 User ID:', props.userId);
-      
-      // 處理圖片：通過 canvas 重新繪製，確保格式一致（類似 Kiosk 模式）
-      // 這樣可以統一圖片格式，避免元數據問題
-      let processedFile = file;
-      
-      try {
-        console.log('🖼️ 開始處理圖片，確保格式一致...');
-        
-        // 創建圖片對象
-        const img = new Image();
-        const imageUrl = URL.createObjectURL(file);
-        
-        await new Promise((resolve, reject) => {
-          img.onload = () => {
-            // 創建 canvas
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width;
-            canvas.height = img.height;
-            
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0);
-            
-            // 轉換為 blob，然後創建 File 對象（類似 Kiosk 模式）
-            canvas.toBlob((blob) => {
-              if (blob) {
-                // 使用原始檔案名稱，但確保類型為 image/jpeg
-                const fileName = file.name.replace(/\.[^/.]+$/, '') + '.jpg';
-                processedFile = new File([blob], fileName, { type: 'image/jpeg' });
-                console.log('✅ 圖片處理完成:', {
-                  originalName: file.name,
-                  processedName: processedFile.name,
-                  originalType: file.type,
-                  processedType: processedFile.type,
-                  originalSize: file.size,
-                  processedSize: processedFile.size,
-                  imageWidth: img.width,
-                  imageHeight: img.height,
-                  aspectRatio: (img.width / img.height).toFixed(2)
-                });
-                console.log('📐 圖片尺寸:', `${img.width} x ${img.height}`, `(比例: ${(img.width / img.height).toFixed(2)})`);
-                URL.revokeObjectURL(imageUrl);
-                resolve();
-              } else {
-                URL.revokeObjectURL(imageUrl);
-                reject(new Error('圖片處理失敗'));
-              }
-            }, 'image/jpeg', 0.95); // 使用 0.95 質量，與 Kiosk 模式一致
-          };
-          
-          img.onerror = () => {
-            URL.revokeObjectURL(imageUrl);
-            reject(new Error('圖片載入失敗'));
-          };
-          
-          img.src = imageUrl;
-        });
-      } catch (error) {
-        console.warn('⚠️ 圖片處理失敗，使用原始檔案:', error);
-        // 如果處理失敗，使用原始檔案
-        processedFile = file;
-      }
-      
-      // 準備FormData - 純粹的API調用，不改變UI
-      const formData = new FormData();
-      formData.append('userId', props.userId || 'abc'); // 使用傳入的用戶ID或後備值
-      formData.append('file', processedFile);
-      
-      // 將字符串模板ID轉換為對應的數字ID (1,2,3,4)
-      const templateIdMap = {
-        'play': '1',     // 綜藝玩很大 → 模板 1
-        'wife': '2',     // 犀利人妻 → 模板 2
-        'love': '3',     // 命中註定我愛你 → 模板 3
-        'super': '4'     // 超級夜總會 → 模板 4
-      };
-      const numericTemplateId = templateIdMap[props.selectedTemplate] || '1';
-      formData.append('template_id', numericTemplateId);
-      
-      formData.append('target_face_index', targetFaceIndex); // 使用新的 getFaceIndex 函數獲取正確的 face_index
-      formData.append('userInfo', `選擇的角色: ${selectedCharacter.value}`);
-      
-      console.log('📤 準備發送 FormData:', {
-        userId: props.userId || 'abc',
-        template_id: numericTemplateId,
-        target_face_index: targetFaceIndex,
-        file_name: processedFile.name,
-        file_size: processedFile.size,
-        file_type: processedFile.type,
-        original_file_name: file.name,
-        original_file_size: file.size,
-        original_file_type: file.type
-      });
-      // 單獨輸出以便查看
-      console.log('📤 Template ID (數字):', numericTemplateId);
-      console.log('📤 Target Face Index:', targetFaceIndex);
-      console.log('📤 User ID:', props.userId || 'abc');
-      console.log('📤 處理後的檔案:', {
-        name: processedFile.name,
-        type: processedFile.type,
-        size: processedFile.size,
-        sizeKB: (processedFile.size / 1024).toFixed(2) + 'KB'
-      });
-      
-      // 調用API生成頭像
-      const result = await roadshowService.generateAvatar(formData);
-      
-      if (result && (result.success || result.status === 'success')) {
-        // 延遲一下再發送事件，讓用戶看到彈窗
-        setTimeout(() => {
-          showFirstDialog.value = false;
-          showSecondDialog.value = true;
-          setTimeout(() => {
-            emit("generate", {
-              selectedCharacter: selectedCharacter.value,
-              uploadedImage: uploadedImage.value,
-              taskId: result.result?.task_id || result.result?.id,
-              selectedTemplate: props.selectedTemplate  // 添加選擇的模板ID
-            });
-          }, 1000);
-        }, 1000);
-      } else if (result && result.error) {
-        // 處理特定錯誤狀態
-        if (result.error.status === 403) {
-          // 檢查是否是達到生成限制的錯誤
-          const errorMessage = result.error.message || '';
-          if (errorMessage.includes('生成限制') || errorMessage.includes('限制')) {
-            throw new Error('您已達到每人10張圖片的生成限制，無法繼續生成新圖片');
-          } else {
-            throw new Error('權限不足，無法生成頭像');
-          }
-        } else if (result.error.status === 400) {
-          throw new Error('請求格式錯誤，請檢查上傳的檔案');
-        } else if (result.error.status !== 200) {
-          throw new Error('生成失敗，請重新上傳');
-        } else {
-          throw new Error('生成失敗');
-        }
-      } else {
-        throw new Error('生成失敗');
-      }
-    } catch (error) {
-      console.error('❌ 生成頭像失敗:', error);
-      isGenerating.value = false;
-      showFirstDialog.value = false;
-      showSecondDialog.value = false;
-      
-              // 檢查是否是達到生成限制的錯誤
-        if (error.message.includes('生成限制')) {
-          // 顯示達到限制的錯誤訊息，並提供查看歷史的選項
-          if (confirm(`${error.message}\n\n是否要查看您的生成歷史？`)) {
-            // 可以發送一個事件來顯示歷史
-            emit('showHistory');
-          }
-        } else {
-          // 其他錯誤使用alert
-          alert(`生成失敗：${error.message}`);
-        }
-    }
-  }
+function goHome() {
+  emit('home')
 }
 
-// 組件卸載時清理預覽URL
 onUnmounted(() => {
   if (uploadedImagePreview.value) {
-    URL.revokeObjectURL(uploadedImagePreview.value);
+    URL.revokeObjectURL(uploadedImagePreview.value)
   }
-});
+})
 </script>
+
+<style scoped>
+.upload-box {
+  width: 100%;
+  overflow: hidden;
+  border: 3px dashed rgba(37, 37, 37, 0.32);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.65);
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.preview-image {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #161616;
+}
+
+.upload-placeholder {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: #242424;
+  text-align: center;
+}
+
+.upload-placeholder img {
+  width: 92px;
+  height: auto;
+}
+
+.upload-placeholder span {
+  font-size: 20px;
+}
+
+.upload-placeholder small {
+  font-size: 13px;
+}
+
+.upload-note {
+  color: #252525;
+  line-height: 1.65;
+  text-align: center;
+}
+
+.generate-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.generate-button:disabled {
+  cursor: default;
+}
+
+.generate-button img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+.loading-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.58);
+}
+
+.loading-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #202020;
+  text-align: center;
+}
+
+.loading-animation {
+  width: 150px;
+  height: 150px;
+}
+
+:global(.enterprise-page-kiosk) .upload-box {
+  max-width: 640px;
+  height: 720px;
+}
+
+:global(.enterprise-page-kiosk) .upload-note {
+  max-width: 640px;
+  margin-top: 30px;
+  font-size: 26px;
+}
+
+:global(.enterprise-page-kiosk) .generate-button {
+  width: 630px;
+  margin-top: auto;
+}
+
+:global(.enterprise-page-kiosk) .loading-card {
+  width: 420px;
+  min-height: 330px;
+  gap: 20px;
+  font-size: 30px;
+}
+
+:global(.enterprise-page-mobile) .upload-box {
+  height: 250px;
+}
+
+:global(.enterprise-page-mobile) .upload-note {
+  margin-top: 18px;
+  font-size: 14px;
+}
+
+:global(.enterprise-page-mobile) .generate-button {
+  width: 260px;
+  margin-top: auto;
+}
+
+:global(.enterprise-page-mobile) .loading-card {
+  width: 260px;
+  min-height: 210px;
+  gap: 16px;
+  font-size: 18px;
+}
+</style>

@@ -16,6 +16,15 @@
       authToken: '123',
       // 請求超時時間（毫秒）
       timeout: 30000,
+      // Ali Image Studio 模板生圖 API - 部署時改成實際內網 IP，例如 http://192.168.1.100:8067
+      templateApiBaseURL: 'http://localhost:8067',
+      // 企業日模板 ID 對應，可在正式模板建立後直接改這裡
+      enterpriseTemplateIds: {
+        sanliTv: 1,
+        chef: 2,
+        taiwanOpera: 3,
+        table: 4
+      },
       // 調試模式 - 設為 true 可以在控制台看到詳細日誌
       debug: true,
       
@@ -43,7 +52,7 @@
 
       // ===== 裝置模式配置 =====
       // 裝置模式：'auto' 自動偵測 | 'kiosk' 強制 Kiosk 模式 | 'mobile' 強制手機模式
-      deviceMode: 'auto',
+      deviceMode: 'kiosk',
       // Kiosk 裝置 ID（用於識別不同的 Kiosk 設備）
       kioskId: 'kiosk_test_004',
       

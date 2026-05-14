@@ -1,34 +1,23 @@
 <template>
   <div v-if="isVisible" class="fixed inset-0 z-[9999] flex items-center justify-center">
-    <!-- Backdrop -->
-    <div class="absolute inset-0 bg-black bg-opacity-50" @click="close"></div>
+    <div class="absolute inset-0 bg-black/65" @click="close"></div>
 
-    <!-- Modal Content -->
-    <div class="relative bg-white bg-opacity-90 rounded-lg p-8 max-w-sm mx-4 z-[10000]">
-      <!-- Close button -->
-      <button @click="close"
-              class="absolute top-4 right-4 text-[#333] hover:text-[#666] transition-colors">
-        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                d="M6 18L18 6M6 6l12 12"/>
-        </svg>
-      </button>
-
-      <!-- Title -->
-      <div class="text-center mb-6">
-        <h3 class="text-xl font-bold text-[#333]">掃描獲取照片</h3>
+    <div :class="['qr-modal', isKioskMode ? 'qr-modal-kiosk' : 'qr-modal-mobile']">
+      <div class="text-center">
+        <h3>掃描 QR Code 下載圖片</h3>
       </div>
 
-      <!-- QR Code Container -->
-      <div class="flex justify-center mb-6">
+      <div class="flex justify-center">
         <div ref="qrcodeContainer"></div>
       </div>
 
-
-      <!-- URL Display (for debugging/fallback) -->
       <div v-if="showUrl" class="mt-4 p-3 bg-gray-100 rounded text-xs break-all text-[#666]">
         {{ imageUrl }}
       </div>
+
+      <button type="button" class="close-button" @click="close" @touchend.prevent="close">
+        <img :src="imageUrls.enterprise.closeButton" alt="關閉" draggable="false" />
+      </button>
     </div>
   </div>
 </template>
@@ -36,6 +25,7 @@
 <script setup>
 import { ref, watch, nextTick } from 'vue'
 import QRCode from 'qrcode'
+import { imageUrls } from '@/config/imageUrls'
 
 const props = defineProps({
   isVisible: {
@@ -47,6 +37,10 @@ const props = defineProps({
     required: true
   },
   showUrl: {
+    type: Boolean,
+    default: false
+  },
+  isKioskMode: {
     type: Boolean,
     default: false
   }
@@ -106,7 +100,7 @@ watch(() => props.isVisible, async (newVal) => {
 
       try {
         // Generate QR code with solid colors first - scale for PC
-        const qrSize = window.innerWidth >= 1024 ? 400 : 200  // PC版放大2倍
+        const qrSize = props.isKioskMode ? 520 : 240
         const canvas = await QRCode.toCanvas(props.imageUrl, {
           width: qrSize,
           margin: 1,
@@ -134,3 +128,63 @@ function close() {
   emit('close')
 }
 </script>
+
+<style scoped>
+.qr-modal {
+  position: relative;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.94);
+  color: #202020;
+}
+
+.qr-modal h3 {
+  font-weight: 700;
+}
+
+.close-button {
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.close-button img {
+  display: block;
+  width: 100%;
+  height: auto;
+  user-select: none;
+}
+
+.qr-modal-kiosk {
+  width: 760px;
+  padding: 58px 70px 62px;
+  gap: 38px;
+}
+
+.qr-modal-kiosk h3 {
+  font-size: 38px;
+}
+
+.qr-modal-kiosk .close-button {
+  width: 420px;
+}
+
+.qr-modal-mobile {
+  width: min(88vw, 340px);
+  padding: 28px 24px 32px;
+  gap: 22px;
+}
+
+.qr-modal-mobile h3 {
+  font-size: 22px;
+}
+
+.qr-modal-mobile .close-button {
+  width: 238px;
+}
+</style>
