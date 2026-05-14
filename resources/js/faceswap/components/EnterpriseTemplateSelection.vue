@@ -13,6 +13,10 @@
       <section class="enterprise-panel">
         <img :src="imageUrls.enterprise.panel" alt="" class="enterprise-panel-bg" draggable="false" />
         <div class="enterprise-panel-inner">
+          <div class="step-indicator">
+            <span class="step-num">步驟 2/4</span>
+            <span class="step-name">選擇主題</span>
+          </div>
           <div class="template-grid">
             <button
               v-for="template in ENTERPRISE_TEMPLATES"
@@ -194,6 +198,19 @@ function goHome() {
   user-select: none;
 }
 
+.enterprise-page-kiosk {
+  position: absolute;
+  inset: 0;
+  width: 1080px;
+  height: 1920px;
+  min-width: 1080px;
+  min-height: 1920px;
+}
+
+.enterprise-page-kiosk .enterprise-content {
+  min-height: 1920px;
+}
+
 .enterprise-page-kiosk .back-button {
   left: 70px;
   top: 68px;
@@ -220,7 +237,32 @@ function goHome() {
 }
 
 .enterprise-page-kiosk .enterprise-panel-inner {
-  padding: 92px 120px 92px;
+  padding: 40px 120px 92px;
+}
+
+.enterprise-page-kiosk .step-indicator {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.enterprise-page-kiosk .step-num {
+  display: inline-block;
+  font-size: 38px;
+  line-height: 32px;
+  color: #888888;
+  transform: skewX(-4deg);
+}
+
+.enterprise-page-kiosk .step-name {
+  display: inline-block;
+  font-size: 58px;
+  line-height: 50px;
+  color: #222222;
+  font-weight: 700;
+  transform: skewX(-6deg) scaleY(0.99);
 }
 
 .enterprise-page-kiosk .template-grid {
@@ -259,7 +301,32 @@ function goHome() {
 }
 
 .enterprise-page-mobile .enterprise-panel-inner {
-  padding: 58px 36px 44px;
+  padding: 34px 36px 44px;
+}
+
+.enterprise-page-mobile .step-indicator {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.enterprise-page-mobile .step-num {
+  display: inline-block;
+  font-size: 14px;
+  line-height: 1;
+  color: #888888;
+  transform: skewX(-4deg);
+}
+
+.enterprise-page-mobile .step-name {
+  display: inline-block;
+  font-size: 20px;
+  line-height: 1;
+  color: #222222;
+  font-weight: 700;
+  transform: skewX(-6deg);
 }
 
 .enterprise-page-mobile .template-grid {

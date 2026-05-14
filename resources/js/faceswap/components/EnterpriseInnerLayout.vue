@@ -14,15 +14,9 @@
         <img :src="imageUrls.enterprise.logo" alt="2026 企業日" class="enterprise-logo" draggable="false" />
 
         <div class="enterprise-panel-inner">
-          <div class="step-row" aria-label="目前步驟">
-            <div
-              v-for="step in steps"
-              :key="step.id"
-              :class="['step-item', step.id === currentStep ? 'is-active' : '', step.id < currentStep ? 'is-done' : '']"
-            >
-              <span class="step-dot">{{ step.id }}</span>
-              <span class="step-label">{{ step.label }}</span>
-            </div>
+          <div class="step-indicator">
+            <span class="step-num">步驟 {{ currentStep }}/4</span>
+            <span class="step-name">{{ currentStepLabel }}</span>
           </div>
 
           <slot />
@@ -35,9 +29,10 @@
 </template>
 
 <script setup>
+import { computed } from 'vue'
 import { imageUrls } from '@/config/imageUrls'
 
-defineProps({
+const props = defineProps({
   isKioskMode: {
     type: Boolean,
     default: false,
@@ -53,9 +48,11 @@ const emit = defineEmits(['home'])
 const steps = [
   { id: 1, label: '選擇性別' },
   { id: 2, label: '選擇主題' },
-  { id: 3, label: '拍照生成' },
-  { id: 4, label: '下載圖片' },
+  { id: 3, label: '拍攝照片' },
+  { id: 4, label: '生成結果' },
 ]
+
+const currentStepLabel = computed(() => steps.find(s => s.id === props.currentStep)?.label ?? '')
 
 function goHome() {
   emit('home')
@@ -150,54 +147,22 @@ function goHome() {
   user-select: none;
 }
 
-.step-row {
+.step-indicator {
   display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
+  align-items: flex-end;
 }
 
-.step-item {
-  display: flex;
-  align-items: center;
-  color: rgba(31, 31, 31, 0.42);
-  white-space: nowrap;
+.step-num {
+  display: inline-block;
+  color: #888888;
+  transform: skewX(-4deg);
 }
 
-.step-item:not(:last-child)::after {
-  display: block;
-  content: '';
-  height: 2px;
-  background: rgba(31, 31, 31, 0.24);
-}
-
-.step-item.is-active,
-.step-item.is-done {
-  color: #1f1f1f;
-}
-
-.step-item.is-active .step-dot {
-  background: #1f1f1f;
-  color: #fff;
-}
-
-.step-item.is-done .step-dot {
-  background: rgba(31, 31, 31, 0.78);
-  color: #fff;
-}
-
-.step-dot {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex: 0 0 auto;
-  border: 2px solid currentColor;
-  border-radius: 999px;
+.step-name {
+  display: inline-block;
+  color: #222222;
   font-weight: 700;
-}
-
-.step-label {
-  font-weight: 700;
+  transform: skewX(-6deg) scaleY(0.99);
 }
 
 .enterprise-page-kiosk .enterprise-content {
@@ -235,28 +200,22 @@ function goHome() {
 }
 
 .enterprise-page-kiosk .enterprise-panel-inner {
-  padding: 164px 78px 86px;
+  padding: 104px 78px 86px;
 }
 
-.enterprise-page-kiosk .step-row {
+.enterprise-page-kiosk .step-indicator {
+  gap: 10px;
   margin-bottom: 54px;
-  gap: 18px;
 }
 
-.enterprise-page-kiosk .step-item {
-  gap: 12px;
-  font-size: 22px;
+.enterprise-page-kiosk .step-num {
+  font-size: 38px;
+  line-height: 32px;
 }
 
-.enterprise-page-kiosk .step-item:not(:last-child)::after {
-  width: 38px;
-  margin-left: 18px;
-}
-
-.enterprise-page-kiosk .step-dot {
-  width: 42px;
-  height: 42px;
-  font-size: 22px;
+.enterprise-page-kiosk .step-name {
+  font-size: 58px;
+  line-height: 50px;
 }
 
 .enterprise-page-mobile .enterprise-content {
@@ -292,28 +251,21 @@ function goHome() {
 }
 
 .enterprise-page-mobile .enterprise-panel-inner {
-  padding: 82px 24px 42px;
+  padding: 56px 24px 42px;
 }
 
-.enterprise-page-mobile .step-row {
-  margin-bottom: 24px;
-  gap: 6px;
+.enterprise-page-mobile .step-indicator {
+  gap: 5px;
+  margin-bottom: 18px;
 }
 
-.enterprise-page-mobile .step-item {
-  gap: 4px;
-  font-size: 10px;
+.enterprise-page-mobile .step-num {
+  font-size: 13px;
+  line-height: 1;
 }
 
-.enterprise-page-mobile .step-item:not(:last-child)::after {
-  width: 8px;
-  margin-left: 6px;
-}
-
-.enterprise-page-mobile .step-dot {
-  width: 20px;
-  height: 20px;
-  border-width: 1px;
-  font-size: 11px;
+.enterprise-page-mobile .step-name {
+  font-size: 19px;
+  line-height: 1;
 }
 </style>

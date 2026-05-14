@@ -1,154 +1,103 @@
 <template>
-  <div :class="['relative bg-black flex flex-col overflow-hidden', isKioskMode ? 'w-[1080px] h-[1920px]' : 'w-full min-h-screen']">
-    <div class="absolute inset-0 enterprise-camera-bg" :style="{ backgroundImage: `url(${imageUrls.enterprise.background})` }"></div>
+  <div :class="['camera-page', isKioskMode ? 'camera-page--kiosk' : 'camera-page--mobile']">
+    <div class="enterprise-bg" :style="{ backgroundImage: `url(${imageUrls.enterprise.background})` }"></div>
+
     <button class="camera-home-button" type="button" @click="goHome" @touchend.prevent="goHome">
       <img :src="imageUrls.enterprise.backIcon" alt="" draggable="false" />
       <img :src="imageUrls.enterprise.backText" alt="回首頁" draggable="false" />
     </button>
-    <!-- Header -->
-    <div :class="isKioskMode ? 'pt-20 pb-8' : 'py-4'" class="relative z-10 flex gap-5 justify-center items-center px-12 w-full font-bold">
-      <img
-        :src="imageUrls.enterprise.logo"
-        :class="isKioskMode ? 'w-[580px]' : 'h-11'"
-        class="object-contain"
-        alt="2026 企業日"
-      />
-    </div>
 
-    <div :class="isKioskMode ? 'mt-10 max-w-[878px]' : 'mt-14 max-w-[338px]'" class="relative z-10 w-full mx-auto">
-      <div class="flex flex-col w-full">
-        <!-- Step indicator -->
-        <div class="camera-step-row" aria-label="目前步驟">
-          <div
-            v-for="step in steps"
-            :key="step.id"
-            :class="['camera-step-item', step.id === 3 ? 'is-active' : '', step.id < 3 ? 'is-done' : '']"
-          >
-            <span class="camera-step-dot">{{ step.id }}</span>
-            <span class="camera-step-label">{{ step.label }}</span>
+    <main class="enterprise-content">
+      <img :src="imageUrls.enterprise.logo" alt="2026 企業日" class="enterprise-logo" draggable="false" />
+
+      <section class="enterprise-panel">
+        <img :src="imageUrls.enterprise.panel" alt="" class="enterprise-panel-bg" draggable="false" />
+        <div class="enterprise-panel-inner">
+
+          <!-- Step indicator -->
+          <div class="step-indicator">
+            <span class="step-num">步驟 3/4</span>
+            <span class="step-name">拍攝照片</span>
           </div>
-        </div>
 
-        <div class="flex justify-center font-bold whitespace-nowrap mb-6">
-          <div :class="isKioskMode ? 'text-5xl' : 'text-base'" class="self-stretch my-auto text-[#EBD8B2]">
-            {{
-              cameraState === 'countdown' ? '拍照倒數中，請勿移動' :
-              cameraState === 'captured' ? '請確認照片' :
-              cameraState === 'preview' ? '需使用單人清晰正面照' :
-              '需使用單人清晰正面照'
-            }}
+          <!-- Status text (only for countdown / captured) -->
+          <div v-if="cameraState === 'countdown' || cameraState === 'captured'" class="camera-status-text">
+            {{ cameraState === 'countdown' ? '拍照倒數中，請勿移動' : '請確認照片' }}
           </div>
-        </div>
 
-        <!-- Camera Area -->
-        <div :class="isKioskMode ? 'mt-12' : 'mt-9'" class="w-full">
-          <div :class="isKioskMode ? 'h-[936px]' : 'h-[360px]'" class="bg-black rounded-lg overflow-hidden relative">
-        <!-- Camera Preview State (showing loading while camera initializes) -->
-        <div v-if="cameraState === 'idle'" class="flex flex-col items-center justify-center h-full">
-          <EnterpriseLoadingAnimation :class="isKioskMode ? 'w-[360px] h-[360px] mb-8' : 'w-[180px] h-[180px] mb-6'" />
-          <div :class="isKioskMode ? 'text-2xl' : 'text-sm'" class="text-[#666]">正在開啟相機...</div>
-        </div>
+          <!-- Camera Area -->
+          <div class="camera-area">
+            <!-- Idle / initializing -->
+            <div v-if="cameraState === 'idle'" class="camera-state-box">
+              <EnterpriseLoadingAnimation class="camera-loading-anim" />
+              <div class="camera-loading-text">正在開啟相機...</div>
+            </div>
 
-        <!-- Camera Stream -->
-        <video v-if="cameraState === 'preview' || cameraState === 'countdown'"
-               ref="videoElement"
-               :class="isKioskMode ? 'border-4' : 'border-2'"
-               class="w-full h-full object-cover border-[#EBD8B2] rounded-lg -scale-x-100"
-               autoplay
-               playsinline>
-        </video>
+            <!-- Live preview -->
+            <video v-if="cameraState === 'preview' || cameraState === 'countdown'"
+                   ref="videoElement"
+                   class="camera-video"
+                   autoplay
+                   playsinline />
 
-        <!-- Countdown Overlay -->
-        <div v-if="cameraState === 'countdown'"
-             class="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-          <div :class="isKioskMode ? 'text-[20rem]' : 'text-9xl'" class="font-bold text-white animate-pulse">
-            {{ countdownNumber }}
-          </div>
-        </div>
+            <!-- Countdown overlay -->
+            <div v-if="cameraState === 'countdown'" class="countdown-overlay">
+              <div class="countdown-number animate-pulse">{{ countdownNumber }}</div>
+            </div>
 
-        <!-- Captured Photo -->
-        <img v-if="cameraState === 'captured'"
-             :src="capturedImage"
-             :class="isKioskMode ? 'border-4' : 'border-2'"
-             class="w-full h-full object-cover border-[#EBD8B2] rounded-lg"
-             alt="Captured photo">
+            <!-- Captured photo -->
+            <img v-if="cameraState === 'captured'"
+                 :src="capturedImage"
+                 class="camera-captured"
+                 alt="Captured photo" />
 
-        <!-- Loading State -->
-        <div v-if="cameraState === 'loading'" class="flex flex-col items-center justify-center h-full">
-          <EnterpriseLoadingAnimation :class="isKioskMode ? 'w-[420px] h-[420px] mb-16' : 'w-[220px] h-[220px] mb-6'" />
-          <div :class="isKioskMode ? 'text-4xl mb-6' : 'text-lg mb-2'" class="text-[#EBD8B2] font-bold">照片生成中，請稍後</div>
-        </div>
-          </div>
-        </div>
-
-        <!-- Countdown Instructions - Show only during countdown -->
-        <div v-if="cameraState === 'countdown'" :class="isKioskMode ? 'mt-12 mb-12' : 'mt-8 mb-8'">
-          <div class="text-center text-white space-y-2">
-            <div :class="isKioskMode ? 'text-3xl' : 'text-lg'">請在五秒內確認你的位置</div>
-            <div :class="isKioskMode ? 'text-3xl' : 'text-lg'">並保持畫面內僅有一人</div>
-            <div :class="isKioskMode ? 'text-3xl' : 'text-lg'">五官清晰無遮擋</div>
-          </div>
-        </div>
-
-        <!-- Action Buttons -->
-        <div v-if="cameraState !== 'countdown'" :class="isKioskMode ? 'mt-12' : 'mt-8'" class="self-end w-full text-base font-bold text-white whitespace-nowrap rounded-md">
-          <div :class="isKioskMode ? 'gap-8' : 'gap-3'" class="flex">
-            <!-- Back Button (重選IP) - Only show when not captured -->
-            <button v-if="cameraState !== 'captured'"
-                    :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center cursor-pointer transition-all duration-300 bg-transparent"
-                    style="touch-action: manipulation;"
-                    @click="goBack"
-                    @touchend.prevent="goBack">
-              <img :src="imageUrls.enterprise.retakeIpButton" alt="重選IP" class="w-full h-full object-contain" />
-            </button>
-
-            <!-- Take Photo Button (開始拍照) when preview is ready -->
-            <button v-if="cameraState === 'preview'"
-                    :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center cursor-pointer transition-all duration-300 bg-transparent"
-                    style="touch-action: manipulation;"
-                    @click="startCountdown"
-                    @touchend.prevent="startCountdown">
-              <img :src="imageUrls.enterprise.takePhotoButton" alt="開始拍照" class="w-full h-full object-contain" />
-            </button>
-
-            <!-- Retake Photo Button when captured -->
-            <button v-if="cameraState === 'captured'"
-                    :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center cursor-pointer transition-all duration-300 bg-transparent"
-                    style="touch-action: manipulation;"
-                    @click="retakePhoto"
-                    @touchend.prevent="retakePhoto">
-              <img :src="imageUrls.enterprise.retakeIpButton" alt="再拍一次" class="w-full h-full object-contain" />
-            </button>
-
-            <!-- Next Step Button -->
-            <button v-if="cameraState === 'captured'"
-                    :class="isKioskMode ? 'h-[72px]' : 'h-11'"
-                    class="flex-1 flex justify-center items-center cursor-pointer transition-all duration-300 bg-transparent"
-                    style="touch-action: manipulation;"
-                    @click="nextStep"
-                    @touchend.prevent="nextStep">
-              <img :src="isKioskMode ? imageUrls.enterprise.nextFocusLarge : imageUrls.enterprise.nextFocusSmall" alt="下一步" class="w-full h-full object-contain" />
-            </button>
-          </div>
-        </div>
-
-        <!-- Instructions Below Buttons - Only show when not captured and not countdown -->
-        <div v-if="cameraState !== 'captured' && cameraState !== 'countdown'" :class="isKioskMode ? 'mt-12' : 'mt-9'" class="text-base font-bold text-[#EBD8B2]">
-          <div :class="isKioskMode ? 'p-10' : 'p-4'" class="bg-black rounded-lg">
-            <div :class="isKioskMode ? 'text-2xl space-y-4' : 'text-sm space-y-2'" class="text-white text-left">
-              <div>1. 點擊後會有5秒準備期，請在5秒內擺好姿勢</div>
-              <div>2. 請保持畫面人物面向，避免多人以上亂識</div>
-              <div>3. 請避免頭髮或帽子遮擋五官，避免過髮等遮擋</div>
-              <div>4. 請勿晃動，以免因照片模糊而影響生成品質</div>
+            <!-- Generating -->
+            <div v-if="cameraState === 'loading'" class="camera-state-box">
+              <EnterpriseLoadingAnimation class="camera-loading-anim camera-loading-anim--large" />
+              <div class="camera-generating-text">照片生成中，請稍後</div>
             </div>
           </div>
+
+          <!-- Countdown instructions -->
+          <div v-if="cameraState === 'countdown'" class="countdown-instructions">
+            <p>請在五秒內確認你的位置</p>
+            <p>並保持畫面內僅有一人</p>
+            <p>五官清晰無遮擋</p>
+          </div>
+
+          <!-- Action buttons -->
+          <div v-if="cameraState !== 'countdown'" class="action-row">
+            <button v-if="cameraState !== 'captured'" class="action-button" type="button"
+                    style="touch-action: manipulation;" @click="goBack" @touchend.prevent="goBack">
+              <img :src="imageUrls.enterprise.retakeIpButton" alt="重選IP" />
+            </button>
+            <button v-if="cameraState === 'preview'" class="action-button" type="button"
+                    style="touch-action: manipulation;" @click="startCountdown" @touchend.prevent="startCountdown">
+              <img :src="imageUrls.enterprise.takePhotoButton" alt="開始拍照" />
+            </button>
+            <button v-if="cameraState === 'captured'" class="action-button" type="button"
+                    style="touch-action: manipulation;" @click="retakePhoto" @touchend.prevent="retakePhoto">
+              <img :src="imageUrls.enterprise.retakeIpButton" alt="再拍一次" />
+            </button>
+            <button v-if="cameraState === 'captured'" class="action-button" type="button"
+                    style="touch-action: manipulation;" @click="nextStep" @touchend.prevent="nextStep">
+              <img :src="isKioskMode ? imageUrls.enterprise.nextFocusLarge : imageUrls.enterprise.nextFocusSmall" alt="下一步" />
+            </button>
+          </div>
+
+          <!-- Photo tips (only when not captured / countdown) -->
+          <div v-if="cameraState !== 'captured' && cameraState !== 'countdown'" class="photo-tips">
+            <div>1. 點擊後會有5秒準備期，請在5秒內擺好姿勢</div>
+            <div>2. 請保持畫面人物面向，避免多人以上亂識</div>
+            <div>3. 請避免頭髮或帽子遮擋五官，避免過髮等遮擋</div>
+            <div>4. 請勿晃動，以免因照片模糊而影響生成品質</div>
+          </div>
+
         </div>
-      </div>
-    </div>
-    <img :src="imageUrls.enterprise.footer" alt="" class="absolute bottom-0 left-0 z-[1] w-full pointer-events-none" />
+      </section>
+    </main>
+
+    <img :src="imageUrls.enterprise.footer" alt="" class="enterprise-footer" draggable="false" />
   </div>
 </template>
 
@@ -180,14 +129,6 @@ const videoElement = ref(null)
 const capturedImage = ref('')
 const countdownNumber = ref(5)
 const stream = ref(null)
-
-const steps = [
-  { id: 1, label: '選擇性別' },
-  { id: 2, label: '選擇主題' },
-  { id: 3, label: '拍照生成' },
-  { id: 4, label: '下載圖片' },
-]
-
 
 // Start camera and preview
 async function startCamera(autoStart = false) {
@@ -355,11 +296,51 @@ onUnmounted(() => {
 </script>
 
 <style scoped>
-.enterprise-camera-bg {
-  background-size: cover;
-  background-position: center;
+/* ── Page container ── */
+.camera-page {
+  position: relative;
+  overflow: hidden;
+  background: #000;
+  color: #1f1f1f;
 }
 
+.camera-page--kiosk {
+  position: absolute;
+  inset: 0;
+  width: 1080px;
+  height: 1920px;
+  min-width: 1080px;
+  min-height: 1920px;
+}
+
+.camera-page--mobile {
+  width: 100%;
+  min-height: 100vh;
+}
+
+/* ── Background & footer ── */
+.enterprise-bg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  background-size: cover;
+  background-position: center;
+  pointer-events: none;
+}
+
+.enterprise-footer {
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  z-index: 1;
+  width: 100%;
+  height: auto;
+  pointer-events: none;
+  user-select: none;
+}
+
+/* ── Back button ── */
 .camera-home-button {
   position: absolute;
   z-index: 20;
@@ -372,114 +353,332 @@ onUnmounted(() => {
   touch-action: manipulation;
 }
 
-.camera-home-button img:first-child {
-  width: 56px;
+/* ── Enterprise layout ── */
+.enterprise-content {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-.camera-home-button img:last-child {
-  width: 168px;
+.enterprise-logo {
+  object-fit: contain;
+  user-select: none;
 }
 
-.camera-home-button {
+.enterprise-panel {
+  position: relative;
+}
+
+.enterprise-panel-bg {
+  width: 100%;
+  height: 100%;
+  object-fit: fill;
+  user-select: none;
+}
+
+.enterprise-panel-inner {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ── Step indicator ── */
+.step-indicator {
+  display: flex;
+  align-items: flex-end;
+  width: 100%;
+}
+
+.step-num {
+  display: inline-block;
+  color: #888888;
+  transform: skewX(-4deg);
+}
+
+.step-name {
+  display: inline-block;
+  color: #222222;
+  font-weight: 700;
+  transform: skewX(-6deg) scaleY(0.99);
+}
+
+/* ── Camera status text ── */
+.camera-status-text {
+  width: 100%;
+  text-align: center;
+  font-weight: 700;
+  color: #1f1f1f;
+}
+
+/* ── Camera area ── */
+.camera-area {
+  width: 100%;
+  flex-shrink: 0;
+  background: #000;
+  border-radius: 8px;
+  overflow: hidden;
+  position: relative;
+}
+
+.camera-state-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+}
+
+.camera-loading-text {
+  color: #666;
+}
+
+.camera-generating-text {
+  color: #1f1f1f;
+  font-weight: 700;
+}
+
+.camera-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  transform: scaleX(-1);
+  border: 2px solid #d1d5db;
+}
+
+.camera-captured {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 8px;
+  border: 2px solid #d1d5db;
+}
+
+/* ── Countdown overlay ── */
+.countdown-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.countdown-number {
+  font-weight: 700;
+  color: #fff;
+}
+
+/* ── Countdown instructions ── */
+.countdown-instructions {
+  text-align: center;
+  color: #1f1f1f;
+  width: 100%;
+}
+
+.countdown-instructions p {
+  margin: 0;
+}
+
+/* ── Action buttons ── */
+.action-row {
+  display: flex;
+  width: 100%;
+}
+
+.action-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: opacity 0.2s;
+}
+
+.action-button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* ── Photo tips ── */
+.photo-tips {
+  width: 100%;
+  border-radius: 8px;
+  background: rgba(31, 31, 31, 0.06);
+  color: #1f1f1f;
+  text-align: left;
+  line-height: 1.8;
+}
+
+/* ════════════════════════════════════════
+   Kiosk  (1080 × 1920)
+════════════════════════════════════════ */
+.camera-page--kiosk .enterprise-content {
+  min-height: 1920px;
+}
+
+.camera-page--kiosk .camera-home-button {
   left: 54px;
   top: 58px;
   gap: 12px;
 }
 
-.camera-step-row {
-  display: flex;
-  width: 100%;
-  align-items: center;
-  justify-content: center;
-  gap: 18px;
+.camera-page--kiosk .camera-home-button img:first-child { width: 56px; }
+.camera-page--kiosk .camera-home-button img:last-child  { width: 168px; }
+
+.camera-page--kiosk .enterprise-logo {
+  width: 580px;
+  margin-top: 82px;
+}
+
+.camera-page--kiosk .enterprise-panel {
+  width: min(88%, 960px);
+  height: 1560px;
+  margin-top: 38px;
+}
+
+.camera-page--kiosk .enterprise-panel-inner {
+  padding: 80px 78px;
+}
+
+.camera-page--kiosk .step-indicator {
+  gap: 10px;
   margin-bottom: 44px;
 }
 
-.camera-step-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  color: rgba(235, 216, 178, 0.48);
-  font-size: 22px;
-  white-space: nowrap;
+.camera-page--kiosk .step-num  { font-size: 38px; line-height: 32px; }
+.camera-page--kiosk .step-name { font-size: 58px; line-height: 50px; }
+
+.camera-page--kiosk .camera-status-text {
+  font-size: 48px;
+  margin-bottom: 24px;
 }
 
-.camera-step-item:not(:last-child)::after {
-  display: block;
-  width: 38px;
-  height: 2px;
-  margin-left: 18px;
-  content: '';
-  background: rgba(235, 216, 178, 0.3);
+.camera-page--kiosk .camera-area  { height: 936px; }
+
+.camera-page--kiosk .camera-video,
+.camera-page--kiosk .camera-captured { border-width: 4px; }
+
+.camera-page--kiosk .camera-loading-anim        { width: 360px; height: 360px; margin-bottom: 32px; }
+.camera-page--kiosk .camera-loading-anim--large { width: 420px; height: 420px; margin-bottom: 64px; }
+
+.camera-page--kiosk .camera-loading-text    { font-size: 24px; }
+.camera-page--kiosk .camera-generating-text { font-size: 36px; }
+
+.camera-page--kiosk .countdown-number { font-size: 20rem; }
+
+.camera-page--kiosk .countdown-instructions {
+  margin-top: 48px;
+  margin-bottom: 48px;
 }
 
-.camera-step-item.is-active,
-.camera-step-item.is-done {
-  color: #EBD8B2;
+.camera-page--kiosk .countdown-instructions p {
+  font-size: 30px;
+  margin-bottom: 8px;
 }
 
-.camera-step-dot {
-  display: inline-flex;
-  width: 42px;
-  height: 42px;
-  align-items: center;
-  justify-content: center;
-  border: 2px solid currentColor;
-  border-radius: 999px;
-  font-size: 22px;
-  font-weight: 700;
+.camera-page--kiosk .action-row {
+  margin-top: 40px;
+  gap: 32px;
 }
 
-.camera-step-item.is-active .camera-step-dot {
-  background: #EBD8B2;
-  color: #000;
+.camera-page--kiosk .action-button { height: 72px; }
+
+.camera-page--kiosk .photo-tips {
+  margin-top: 40px;
+  padding: 40px;
+  font-size: 24px;
 }
 
-@media (max-width: 600px) {
-  .camera-home-button {
-    left: 22px;
-    top: 24px;
-    gap: 5px;
-  }
+/* ════════════════════════════════════════
+   Mobile
+════════════════════════════════════════ */
+.camera-page--mobile .enterprise-content {
+  min-height: 100vh;
+}
 
-  .camera-home-button img:first-child {
-    width: 26px;
-  }
+.camera-page--mobile .camera-home-button {
+  left: 22px;
+  top: 24px;
+  gap: 5px;
+}
 
-  .camera-home-button img:last-child {
-    width: 78px;
-  }
+.camera-page--mobile .camera-home-button img:first-child { width: 26px; }
+.camera-page--mobile .camera-home-button img:last-child  { width: 78px; }
 
-  .camera-step-row {
-    gap: 6px;
-    margin-bottom: 22px;
-  }
+.camera-page--mobile .enterprise-logo {
+  width: 230px;
+  margin-top: 56px;
+}
 
-  .camera-step-item {
-    gap: 4px;
-    font-size: 10px;
-  }
+.camera-page--mobile .enterprise-panel {
+  width: min(92%, 370px);
+  height: 720px;
+  margin-top: 18px;
+}
 
-  .camera-step-item:not(:last-child)::after {
-    width: 8px;
-    margin-left: 6px;
-  }
+.camera-page--mobile .enterprise-panel-inner {
+  padding: 50px 24px 40px;
+}
 
-  .camera-step-dot {
-    width: 20px;
-    height: 20px;
-    border-width: 1px;
-    font-size: 11px;
-  }
+.camera-page--mobile .step-indicator {
+  gap: 5px;
+  margin-bottom: 22px;
+}
+
+.camera-page--mobile .step-num  { font-size: 14px; line-height: 1; }
+.camera-page--mobile .step-name { font-size: 20px; line-height: 1; }
+
+.camera-page--mobile .camera-status-text {
+  font-size: 16px;
+  margin-bottom: 12px;
+}
+
+.camera-page--mobile .camera-area  { height: 360px; }
+
+.camera-page--mobile .camera-loading-anim        { width: 180px; height: 180px; margin-bottom: 24px; }
+.camera-page--mobile .camera-loading-anim--large { width: 220px; height: 220px; margin-bottom: 24px; }
+
+.camera-page--mobile .camera-loading-text    { font-size: 14px; }
+.camera-page--mobile .camera-generating-text { font-size: 18px; }
+
+.camera-page--mobile .countdown-number { font-size: 9rem; }
+
+.camera-page--mobile .countdown-instructions {
+  margin-top: 28px;
+  margin-bottom: 28px;
+}
+
+.camera-page--mobile .countdown-instructions p {
+  font-size: 16px;
+  margin-bottom: 4px;
+}
+
+.camera-page--mobile .action-row {
+  margin-top: 24px;
+  gap: 10px;
+}
+
+.camera-page--mobile .action-button { height: 44px; }
+
+.camera-page--mobile .photo-tips {
+  margin-top: 24px;
+  padding: 16px;
+  font-size: 12px;
 }
 
 @keyframes spin-reverse {
-  from {
-    transform: rotate(360deg);
-  }
-  to {
-    transform: rotate(0deg);
-  }
+  from { transform: rotate(360deg); }
+  to   { transform: rotate(0deg); }
 }
 
 .animate-spin-reverse {

@@ -2,12 +2,21 @@
   <div :class="['enterprise-page', isKioskMode ? 'enterprise-page-kiosk' : 'enterprise-page-mobile']">
     <div class="enterprise-bg" :style="{ backgroundImage: `url(${imageUrls.enterprise.background})` }"></div>
 
+    <button class="back-button" type="button" @click="goHome" @touchend.prevent="goHome">
+      <img :src="imageUrls.enterprise.backIcon" alt="" draggable="false" />
+      <img :src="imageUrls.enterprise.backText" alt="回首頁" draggable="false" />
+    </button>
+
     <main class="enterprise-content">
       <img :src="imageUrls.enterprise.logo" alt="2026 企業日" class="enterprise-logo" draggable="false" />
 
       <section class="enterprise-panel">
         <img :src="imageUrls.enterprise.panel" alt="" class="enterprise-panel-bg" draggable="false" />
         <div class="enterprise-panel-inner">
+          <div class="step-indicator">
+            <span class="step-num">步驟 1/4</span>
+            <span class="step-name">選擇性別</span>
+          </div>
           <div class="gender-grid">
             <button
               v-for="gender in ENTERPRISE_GENDERS"
@@ -77,6 +86,10 @@ function selectGender(genderId) {
 function nextStep() {
   if (!selectedGender.value) return
   emit('next-step', { selectedGender: selectedGender.value })
+}
+
+function goHome() {
+  emit('home')
 }
 </script>
 
@@ -151,6 +164,23 @@ function nextStep() {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.back-button {
+  position: absolute;
+  z-index: 4;
+  display: flex;
+  align-items: center;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.back-button img {
+  display: block;
+  user-select: none;
+}
+
 .asset-button,
 .next-button {
   display: block;
@@ -173,6 +203,33 @@ function nextStep() {
   cursor: default;
 }
 
+.enterprise-page-kiosk {
+  position: absolute;
+  inset: 0;
+  width: 1080px;
+  height: 1920px;
+  min-width: 1080px;
+  min-height: 1920px;
+}
+
+.enterprise-page-kiosk .enterprise-content {
+  min-height: 1920px;
+}
+
+.enterprise-page-kiosk .back-button {
+  left: 70px;
+  top: 68px;
+  gap: 14px;
+}
+
+.enterprise-page-kiosk .back-button img:first-child {
+  width: 56px;
+}
+
+.enterprise-page-kiosk .back-button img:last-child {
+  width: 168px;
+}
+
 .enterprise-page-kiosk .enterprise-logo {
   width: 580px;
   margin-top: 82px;
@@ -184,7 +241,32 @@ function nextStep() {
 }
 
 .enterprise-page-kiosk .enterprise-panel-inner {
-  padding: 150px 92px 110px;
+  padding: 90px 92px 110px;
+}
+
+.enterprise-page-kiosk .step-indicator {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.enterprise-page-kiosk .step-num {
+  display: inline-block;
+  font-size: 38px;
+  line-height: 32px;
+  color: #888888;
+  transform: skewX(-4deg);
+}
+
+.enterprise-page-kiosk .step-name {
+  display: inline-block;
+  font-size: 58px;
+  line-height: 50px;
+  color: #222222;
+  font-weight: 700;
+  transform: skewX(-6deg) scaleY(0.99);
 }
 
 .enterprise-page-kiosk .gender-grid {
@@ -195,6 +277,20 @@ function nextStep() {
 .enterprise-page-kiosk .next-button {
   width: 630px;
   margin-top: auto;
+}
+
+.enterprise-page-mobile .back-button {
+  left: 18px;
+  top: 22px;
+  gap: 6px;
+}
+
+.enterprise-page-mobile .back-button img:first-child {
+  width: 28px;
+}
+
+.enterprise-page-mobile .back-button img:last-child {
+  width: 84px;
 }
 
 .enterprise-page-mobile .enterprise-logo {
@@ -209,7 +305,32 @@ function nextStep() {
 }
 
 .enterprise-page-mobile .enterprise-panel-inner {
-  padding: 76px 28px 58px;
+  padding: 50px 28px 58px;
+}
+
+.enterprise-page-mobile .step-indicator {
+  display: flex;
+  align-items: flex-end;
+  gap: 5px;
+  width: 100%;
+  margin-bottom: 6px;
+}
+
+.enterprise-page-mobile .step-num {
+  display: inline-block;
+  font-size: 14px;
+  line-height: 1;
+  color: #888888;
+  transform: skewX(-4deg);
+}
+
+.enterprise-page-mobile .step-name {
+  display: inline-block;
+  font-size: 20px;
+  line-height: 1;
+  color: #222222;
+  font-weight: 700;
+  transform: skewX(-6deg);
 }
 
 .enterprise-page-mobile .gender-grid {
