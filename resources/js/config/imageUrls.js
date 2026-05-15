@@ -1,15 +1,13 @@
 import profileImg from '../../../public/images/profile.png'
-import uploadImg from '../../../public/images/Group1386254.png'
 import enterpriseBackgroundImg from '../../../public/images/內頁background.png'
 import enterpriseFooterImg from '../../../public/images/內頁footer.png'
 import enterpriseLogoImg from '../../../public/images/內頁logo.png'
 import enterprisePanelImg from '../../../public/images/內頁白底.png'
 import enterpriseBackIconImg from '../../../public/images/back icon.png'
 import enterpriseBackTextImg from '../../../public/images/back文字.png'
+import enterpriseBackToHomeImg from '../../../public/images/backtohome.png'
 import enterpriseNextDisabledLargeImg from '../../../public/images/下一步 Disabled_large.png'
-import enterpriseNextDisabledSmallImg from '../../../public/images/下一步 Disabled_sm.png'
 import enterpriseNextFocusLargeImg from '../../../public/images/下一步 Focus_large.png'
-import enterpriseNextFocusSmallImg from '../../../public/images/下一步 Focus_sm.png'
 import enterpriseDownloadButtonImg from '../../../public/images/下載圖片_btn.png'
 import enterpriseRestartButtonImg from '../../../public/images/重新開始_btn.png'
 import enterpriseRetakeIpButtonImg from '../../../public/images/重選IP.png'
@@ -38,7 +36,6 @@ import enterpriseTableMaleSelectedImg from '../../../public/images/請世界吃�
 
 export const imageUrls = {
   profile: profileImg,
-  upload: uploadImg,
   enterprise: {
     background: enterpriseBackgroundImg,
     footer: enterpriseFooterImg,
@@ -46,10 +43,9 @@ export const imageUrls = {
     panel: enterprisePanelImg,
     backIcon: enterpriseBackIconImg,
     backText: enterpriseBackTextImg,
+    backToHome: enterpriseBackToHomeImg,
     nextDisabledLarge: enterpriseNextDisabledLargeImg,
-    nextDisabledSmall: enterpriseNextDisabledSmallImg,
     nextFocusLarge: enterpriseNextFocusLargeImg,
-    nextFocusSmall: enterpriseNextFocusSmallImg,
     downloadButton: enterpriseDownloadButtonImg,
     restartButton: enterpriseRestartButtonImg,
     retakeIpButton: enterpriseRetakeIpButtonImg,

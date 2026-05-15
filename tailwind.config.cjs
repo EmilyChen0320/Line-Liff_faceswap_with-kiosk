@@ -14,7 +14,7 @@ module.exports = {
       fontFamily: {
         'inter': ['Inter', 'sans-serif'],
         'poppins': ['Poppins', 'sans-serif'],
-        'noto-sans-tc': ['Noto Sans TC', '-apple-system', 'Roboto', 'Helvetica', 'sans-serif'],
+        'noto-sans-tc': ['MonaChaoGangHei', 'Noto Sans TC', '-apple-system', 'Roboto', 'Helvetica', 'sans-serif'],
       },
     },
   },

@@ -1,54 +1,86 @@
 <template>
-  <div :class="['enterprise-page', isKioskMode ? 'enterprise-page-kiosk' : 'enterprise-page-mobile']">
-    <div class="enterprise-bg" :style="{ backgroundImage: `url(${imageUrls.enterprise.background})` }"></div>
+  <div class="relative h-full w-full overflow-hidden bg-black text-[#1f1f1f]">
+    <div
+      class="pointer-events-none absolute inset-0 bg-cover bg-center"
+      :style="{ backgroundImage: `url(${imageUrls.enterprise.background})` }"
+    ></div>
 
-    <button class="back-button" type="button" @click="goHome" @touchend.prevent="goHome">
-      <img :src="imageUrls.enterprise.backIcon" alt="" draggable="false" />
-      <img :src="imageUrls.enterprise.backText" alt="返回" draggable="false" />
-    </button>
+    <main class="relative z-10 flex h-full flex-col items-center">
+      <section class="relative mt-[160px] h-[1503px] w-[960px]">
+        <img
+          :src="imageUrls.enterprise.panel"
+          alt=""
+          class="pointer-events-none absolute inset-0 z-0 h-full w-full select-none object-fill"
+          draggable="false"
+        />
 
-    <main class="enterprise-content">
-      <img :src="imageUrls.enterprise.logo" alt="2026 企業日" class="enterprise-logo" draggable="false" />
+        <button
+          class="absolute left-4 top-[42px] z-40 border-0 bg-transparent p-0"
+          type="button"
+          @click="goHome"
+          @touchend.prevent="goHome"
+        >
+          <img :src="imageUrls.enterprise.backToHome" alt="回首頁" class="block w-[170px] select-none" draggable="false" />
+        </button>
 
-      <section class="enterprise-panel">
-        <img :src="imageUrls.enterprise.panel" alt="" class="enterprise-panel-bg" draggable="false" />
-        <div class="enterprise-panel-inner">
-          <div class="step-indicator">
-            <span class="step-num">步驟 2/4</span>
-            <span class="step-name">選擇主題</span>
+        <img
+          :src="imageUrls.enterprise.logo"
+          alt="2026 企業日"
+          class="pointer-events-none absolute -top-[76px] right-[-16px] z-20 w-[470px] select-none object-contain"
+          draggable="false"
+        />
+
+        <div class="relative z-30 flex h-full flex-col items-center px-[92px] pb-[110px] pt-[150px]">
+          <div class="mb-[62px] flex w-full items-end justify-center gap-2.5">
+            <span class="inline-block skew-x-[-4deg] text-[38px] leading-8 text-[#888888]">步驟 2/4</span>
+            <span class="inline-block scale-y-[0.99] skew-x-[-6deg] text-[58px] font-bold leading-[50px] text-[#222222]">
+              選擇主題
+            </span>
           </div>
-          <div class="template-grid">
+
+          <div class="grid h-[952px] w-fit grid-cols-2 gap-x-[124px] gap-y-[60px]">
             <button
               v-for="template in ENTERPRISE_TEMPLATES"
               :key="template.id"
-              class="asset-button"
+              class="h-[467px] w-[260px] border-0 bg-transparent p-0"
               type="button"
               @click="selectTemplate(template.id)"
               @touchend.prevent="selectTemplate(template.id)"
             >
-              <img :src="getTemplateImage(template)" :alt="template.name" draggable="false" />
+              <img
+                :src="getTemplateImage(template)"
+                :alt="template.name"
+                class="block h-full w-full select-none object-contain"
+                draggable="false"
+              />
             </button>
           </div>
 
           <button
-            class="next-button"
+            class="mt-auto inline-flex self-end items-center justify-center gap-4 rounded-full border-[6px] border-black bg-[#fff35c] px-20 py-4 text-[36px] font-bold leading-none text-black shadow-[0_8px_0_#000] disabled:bg-[#d9d9d9] disabled:text-black disabled:cursor-default"
             type="button"
             :disabled="!selectedTemplate"
             @click="nextStep"
             @touchend.prevent="nextStep"
           >
-            <img :src="nextButtonImage" alt="下一步" draggable="false" />
+            <span>下一步</span>
+            <span aria-hidden="true">→</span>
           </button>
         </div>
       </section>
     </main>
 
-    <img :src="imageUrls.enterprise.footer" alt="" class="enterprise-footer" draggable="false" />
+    <img
+      :src="imageUrls.enterprise.footer"
+      alt=""
+      class="pointer-events-none absolute inset-x-0 bottom-0 z-50 w-full select-none"
+      draggable="false"
+    />
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { imageUrls } from '@/config/imageUrls'
 import { ENTERPRISE_TEMPLATES } from '@/config/enterpriseDay'
 
@@ -56,10 +88,6 @@ const props = defineProps({
   selectedGender: {
     type: String,
     required: true,
-  },
-  isKioskMode: {
-    type: Boolean,
-    default: false,
   },
   initialTemplate: {
     type: String,
@@ -70,14 +98,6 @@ const props = defineProps({
 const emit = defineEmits(['next-step', 'home'])
 
 const selectedTemplate = ref(props.initialTemplate)
-
-const nextButtonImage = computed(() => {
-  if (props.isKioskMode) {
-    return selectedTemplate.value ? imageUrls.enterprise.nextFocusLarge : imageUrls.enterprise.nextDisabledLarge
-  }
-
-  return selectedTemplate.value ? imageUrls.enterprise.nextFocusSmall : imageUrls.enterprise.nextDisabledSmall
-})
 
 function selectTemplate(templateId) {
   selectedTemplate.value = templateId
@@ -97,245 +117,3 @@ function goHome() {
   emit('home')
 }
 </script>
-
-<style scoped>
-.enterprise-page {
-  position: relative;
-  min-height: 100vh;
-  width: 100%;
-  overflow: hidden;
-  background: #000;
-}
-
-.enterprise-bg {
-  position: absolute;
-  inset: 0;
-  background-size: cover;
-  background-position: center;
-  pointer-events: none;
-}
-
-.enterprise-footer {
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  width: 100%;
-  height: auto;
-  pointer-events: none;
-  user-select: none;
-  z-index: 1;
-}
-
-.enterprise-content {
-  position: relative;
-  z-index: 2;
-  display: flex;
-  min-height: 100vh;
-  flex-direction: column;
-  align-items: center;
-}
-
-.enterprise-logo {
-  object-fit: contain;
-  user-select: none;
-}
-
-.enterprise-panel {
-  position: relative;
-}
-
-.enterprise-panel-bg {
-  width: 100%;
-  height: 100%;
-  object-fit: fill;
-  user-select: none;
-}
-
-.enterprise-panel-inner {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.template-grid {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.asset-button,
-.next-button,
-.back-button {
-  border: 0;
-  padding: 0;
-  background: transparent;
-  cursor: pointer;
-  touch-action: manipulation;
-}
-
-.asset-button img,
-.next-button img {
-  display: block;
-  width: 100%;
-  height: auto;
-  user-select: none;
-}
-
-.next-button:disabled {
-  cursor: default;
-}
-
-.back-button {
-  position: absolute;
-  z-index: 4;
-  display: flex;
-  align-items: center;
-}
-
-.back-button img {
-  display: block;
-  user-select: none;
-}
-
-.enterprise-page-kiosk {
-  position: absolute;
-  inset: 0;
-  width: 1080px;
-  height: 1920px;
-  min-width: 1080px;
-  min-height: 1920px;
-}
-
-.enterprise-page-kiosk .enterprise-content {
-  min-height: 1920px;
-}
-
-.enterprise-page-kiosk .back-button {
-  left: 70px;
-  top: 68px;
-  gap: 14px;
-}
-
-.enterprise-page-kiosk .back-button img:first-child {
-  width: 56px;
-}
-
-.enterprise-page-kiosk .back-button img:last-child {
-  width: 168px;
-}
-
-.enterprise-page-kiosk .enterprise-logo {
-  width: 580px;
-  margin-top: 82px;
-}
-
-.enterprise-page-kiosk .enterprise-panel {
-  width: min(88%, 960px);
-  height: 1380px;
-  margin-top: 38px;
-}
-
-.enterprise-page-kiosk .enterprise-panel-inner {
-  padding: 40px 120px 92px;
-}
-
-.enterprise-page-kiosk .step-indicator {
-  display: flex;
-  align-items: flex-end;
-  gap: 10px;
-  width: 100%;
-  margin-bottom: 10px;
-}
-
-.enterprise-page-kiosk .step-num {
-  display: inline-block;
-  font-size: 38px;
-  line-height: 32px;
-  color: #888888;
-  transform: skewX(-4deg);
-}
-
-.enterprise-page-kiosk .step-name {
-  display: inline-block;
-  font-size: 58px;
-  line-height: 50px;
-  color: #222222;
-  font-weight: 700;
-  transform: skewX(-6deg) scaleY(0.99);
-}
-
-.enterprise-page-kiosk .template-grid {
-  width: 100%;
-  gap: 18px 22px;
-}
-
-.enterprise-page-kiosk .next-button {
-  width: 630px;
-  margin-top: auto;
-}
-
-.enterprise-page-mobile .back-button {
-  left: 18px;
-  top: 22px;
-  gap: 6px;
-}
-
-.enterprise-page-mobile .back-button img:first-child {
-  width: 28px;
-}
-
-.enterprise-page-mobile .back-button img:last-child {
-  width: 84px;
-}
-
-.enterprise-page-mobile .enterprise-logo {
-  width: 230px;
-  margin-top: 62px;
-}
-
-.enterprise-page-mobile .enterprise-panel {
-  width: min(92%, 370px);
-  height: 650px;
-  margin-top: 18px;
-}
-
-.enterprise-page-mobile .enterprise-panel-inner {
-  padding: 34px 36px 44px;
-}
-
-.enterprise-page-mobile .step-indicator {
-  display: flex;
-  align-items: flex-end;
-  gap: 5px;
-  width: 100%;
-  margin-bottom: 6px;
-}
-
-.enterprise-page-mobile .step-num {
-  display: inline-block;
-  font-size: 14px;
-  line-height: 1;
-  color: #888888;
-  transform: skewX(-4deg);
-}
-
-.enterprise-page-mobile .step-name {
-  display: inline-block;
-  font-size: 20px;
-  line-height: 1;
-  color: #222222;
-  font-weight: 700;
-  transform: skewX(-6deg);
-}
-
-.enterprise-page-mobile .template-grid {
-  width: 100%;
-  gap: 8px 10px;
-}
-
-.enterprise-page-mobile .next-button {
-  width: 260px;
-  margin-top: auto;
-}
-</style>

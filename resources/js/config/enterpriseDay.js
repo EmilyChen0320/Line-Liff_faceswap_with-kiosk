@@ -43,18 +43,38 @@ export const ENTERPRISE_TEMPLATES = [
 ]
 
 const fallbackTemplateIds = {
-  sanliTv: 1,
-  chef: 2,
-  taiwanOpera: 3,
-  table: 4,
+  chef: {
+    female: 1,
+    male: 2,
+  },
+  taiwanOpera: {
+    female: 3,
+    male: 4,
+  },
+  sanliTv: {
+    female: 5,
+    male: 6,
+  },
+  table: {
+    female: 7,
+    male: 8,
+  },
 }
 
-export function getEnterpriseTemplateApiId(templateId) {
+export function getEnterpriseTemplateApiId(templateId, genderId = 'female') {
   const template = ENTERPRISE_TEMPLATES.find((item) => item.id === templateId)
   const key = template?.configKey || templateId
   const configuredIds = window.endpoint?.enterpriseTemplateIds || {}
+  const normalizedGender = genderId === 'male' ? 'male' : 'female'
+  const configuredTemplate = configuredIds[key]
 
-  return configuredIds[key] || fallbackTemplateIds[key] || fallbackTemplateIds.sanliTv
+  if (configuredTemplate && typeof configuredTemplate === 'object') {
+    return configuredTemplate[normalizedGender]
+      || fallbackTemplateIds[key]?.[normalizedGender]
+      || fallbackTemplateIds.sanliTv[normalizedGender]
+  }
+
+  return fallbackTemplateIds[key]?.[normalizedGender] || fallbackTemplateIds.sanliTv[normalizedGender]
 }
 
 export function getEnterpriseTemplateName(templateId) {

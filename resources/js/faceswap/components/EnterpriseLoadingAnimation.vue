@@ -1,5 +1,5 @@
 <template>
-  <div ref="animationContainer" class="enterprise-loading-animation" aria-hidden="true"></div>
+  <div ref="animationContainer" class="h-[150px] w-[150px]" aria-hidden="true"></div>
 </template>
 
 <script setup>
@@ -27,10 +27,3 @@ onUnmounted(() => {
   animation = null
 })
 </script>
-
-<style scoped>
-.enterprise-loading-animation {
-  width: 100%;
-  height: 100%;
-}
-</style>
