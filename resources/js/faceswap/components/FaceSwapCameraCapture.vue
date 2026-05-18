@@ -69,9 +69,12 @@
             />
 
             <div v-if="cameraState === 'loading'" class="flex h-full flex-col items-center justify-center">
-              <EnterpriseLoadingAnimation class="mb-16 h-[150px] w-[150px]" />
-              <div class="text-4xl font-bold text-[#1f1f1f]">換臉生成中...請稍候</div>
+              <EnterpriseLoadingAnimation class="h-[150px] w-[150px]" />
             </div>
+          </div>
+
+          <div v-if="cameraState === 'loading'" class="mt-12 w-full text-center text-[42px] font-bold leading-relaxed text-[#1f1f1f]">
+            換臉生成中...請稍候
           </div>
 
           <div v-if="cameraState === 'countdown'" class="my-12 w-full text-center text-[42px] leading-relaxed">
