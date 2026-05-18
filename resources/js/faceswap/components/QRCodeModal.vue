@@ -10,7 +10,7 @@
       </div>
 
       <div v-if="showUrl" class="mt-4 break-all rounded bg-gray-100 p-3 text-xs text-[#666]">
-        {{ imageUrl }}
+        {{ qrcodeUrl }}
       </div>
 
       <p class="mt-[38px] text-center text-[26px] font-bold leading-[1.35]">
@@ -26,7 +26,7 @@
 </template>
 
 <script setup>
-import { nextTick, ref, watch } from 'vue'
+import { computed, nextTick, ref, watch } from 'vue'
 import QRCode from 'qrcode'
 import { imageUrls } from '@/config/imageUrls'
 
@@ -48,6 +48,11 @@ const props = defineProps({
 const emit = defineEmits(['close'])
 
 const qrcodeContainer = ref(null)
+
+const qrcodeUrl = computed(() => {
+  if (!props.imageUrl) return ''
+  return new URL(props.imageUrl, window.location.origin).href
+})
 
 function applyGradientToCanvas(canvas) {
   const ctx = canvas.getContext('2d')
@@ -79,7 +84,7 @@ function applyGradientToCanvas(canvas) {
 }
 
 watch(() => props.isVisible, async (newVal) => {
-  if (!newVal || !props.imageUrl) return
+  if (!newVal || !qrcodeUrl.value) return
 
   await nextTick()
   if (!qrcodeContainer.value) return
@@ -87,7 +92,7 @@ watch(() => props.isVisible, async (newVal) => {
   qrcodeContainer.value.innerHTML = ''
 
   try {
-    const canvas = await QRCode.toCanvas(props.imageUrl, {
+    const canvas = await QRCode.toCanvas(qrcodeUrl.value, {
       width: 250,
       margin: 1,
       color: {
