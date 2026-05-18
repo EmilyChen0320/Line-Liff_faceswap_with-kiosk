@@ -103,10 +103,10 @@
               v-if="cameraState === 'captured'"
               class="flex h-[72px] flex-1 items-center justify-center border-0 bg-transparent p-0 [touch-action:manipulation]"
               type="button"
-              @click="goBack"
-              @touchend.prevent="goBack"
+              @click="retakePhoto"
+              @touchend.prevent="retakePhoto"
             >
-              <img :src="imageUrls.enterprise.retakeIpButton" alt="重選IP" class="h-full w-full object-contain" draggable="false" />
+              <img :src="imageUrls.enterprise.retakeButton" alt="重新拍照" class="h-full w-full object-contain" draggable="false" />
             </button>
             <button
               v-if="cameraState === 'captured'"
@@ -165,7 +165,7 @@ const capturedImage = ref('')
 const countdownNumber = ref(5)
 const stream = ref(null)
 
-async function startCamera(autoStart = false) {
+async function startCamera({ autoCountdown = false } = {}) {
   try {
     stream.value = await navigator.mediaDevices.getUserMedia({
       video: {
@@ -180,7 +180,7 @@ async function startCamera(autoStart = false) {
 
     if (videoElement.value) {
       videoElement.value.srcObject = stream.value
-      if (!autoStart) {
+      if (autoCountdown) {
         setTimeout(startCountdown, 1000)
       }
     }
@@ -248,6 +248,7 @@ function capturePhoto() {
 }
 
 function retakePhoto() {
+  cameraState.value = 'idle'
   capturedImage.value = ''
   startCamera()
 }
@@ -281,7 +282,7 @@ function goHome() {
 }
 
 onMounted(() => {
-  startCamera(true)
+  startCamera()
 })
 
 onUnmounted(() => {

@@ -11,6 +11,7 @@ import enterpriseNextFocusLargeImg from '../../../public/images/下一步 Focus_
 import enterpriseDownloadButtonImg from '../../../public/images/下載圖片_btn.png'
 import enterpriseRestartButtonImg from '../../../public/images/重新開始_btn.png'
 import enterpriseRetakeIpButtonImg from '../../../public/images/重選IP.png'
+import enterpriseRetakeButtonImg from '../../../public/images/retake.png'
 import enterpriseTakePhotoButtonImg from '../../../public/images/開始拍照_btn.png'
 import enterpriseCloseButtonImg from '../../../public/images/關閉_btn.png'
 import enterpriseGenderFemaleDefaultImg from '../../../public/images/選擇性別(女_Default).png'
@@ -49,6 +50,7 @@ export const imageUrls = {
     downloadButton: enterpriseDownloadButtonImg,
     restartButton: enterpriseRestartButtonImg,
     retakeIpButton: enterpriseRetakeIpButtonImg,
+    retakeButton: enterpriseRetakeButtonImg,
     takePhotoButton: enterpriseTakePhotoButtonImg,
     closeButton: enterpriseCloseButtonImg,
     gender: {
