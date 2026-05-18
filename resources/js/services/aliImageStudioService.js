@@ -8,6 +8,7 @@ function getTemplateApiConfig() {
   }
 }
 
+
 async function fetchWithTimeout(url, options = {}, timeout = 120000) {
   const controller = new AbortController()
   const timeoutId = setTimeout(() => controller.abort(), timeout)
