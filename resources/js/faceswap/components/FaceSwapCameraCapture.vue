@@ -103,10 +103,10 @@
               v-if="cameraState === 'captured'"
               class="flex h-[72px] flex-1 items-center justify-center border-0 bg-transparent p-0 [touch-action:manipulation]"
               type="button"
-              @click="retakePhoto"
-              @touchend.prevent="retakePhoto"
+              @click="goBack"
+              @touchend.prevent="goBack"
             >
-              <img :src="imageUrls.enterprise.retakeIpButton" alt="再拍一次" class="h-full w-full object-contain" draggable="false" />
+              <img :src="imageUrls.enterprise.retakeIpButton" alt="重選IP" class="h-full w-full object-contain" draggable="false" />
             </button>
             <button
               v-if="cameraState === 'captured'"
