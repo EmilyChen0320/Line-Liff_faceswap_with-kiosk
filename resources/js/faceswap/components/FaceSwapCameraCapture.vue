@@ -70,7 +70,7 @@
 
             <div v-if="cameraState === 'loading'" class="flex h-full flex-col items-center justify-center">
               <EnterpriseLoadingAnimation class="mb-16 h-[150px] w-[150px]" />
-              <div class="text-4xl font-bold text-[#1f1f1f]">照片生成中，請稍後</div>
+              <div class="text-4xl font-bold text-[#1f1f1f]">換臉生成中...請稍候</div>
             </div>
           </div>
 
@@ -80,7 +80,7 @@
             <p>五官清晰無遮擋</p>
           </div>
 
-          <div v-if="cameraState !== 'countdown'" class="mt-10 flex w-full justify-between gap-8">
+          <div v-if="cameraState !== 'countdown' && cameraState !== 'loading'" class="mt-10 flex w-full justify-between gap-8">
             <button
               v-if="cameraState !== 'captured'"
               class="flex h-[72px] flex-1 items-center justify-center border-0 bg-transparent p-0 [touch-action:manipulation]"
@@ -120,7 +120,7 @@
           </div>
 
           <div
-            v-if="cameraState !== 'captured' && cameraState !== 'countdown'"
+            v-if="cameraState !== 'captured' && cameraState !== 'countdown' && cameraState !== 'loading'"
             class="w-full p-10 text-left text-[32px] leading-[1.8]"
           >
             <div>• 點擊後會有5秒準備期，請在5秒內擺好姿勢</div>

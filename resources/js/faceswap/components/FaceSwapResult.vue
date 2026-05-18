@@ -12,11 +12,11 @@
     </div>
 
     <div class="mt-[100px] grid w-[720px] grid-cols-2 gap-9">
-      <button type="button" class="border-0 bg-transparent p-0" @click="showQrCode" @touchend.prevent="showQrCode">
-        <img :src="imageUrls.enterprise.downloadButton" alt="下載圖片" class="block w-full select-none" draggable="false" />
-      </button>
       <button type="button" class="border-0 bg-transparent p-0" @click="restart" @touchend.prevent="restart">
         <img :src="imageUrls.enterprise.restartButton" alt="重新開始" class="block w-full select-none" draggable="false" />
+      </button>
+      <button type="button" class="border-0 bg-transparent p-0" @click="showQrCode" @touchend.prevent="showQrCode">
+        <img :src="imageUrls.enterprise.downloadButton" alt="下載圖片" class="block w-full select-none" draggable="false" />
       </button>
     </div>
 
