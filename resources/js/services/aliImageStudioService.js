@@ -1,3 +1,5 @@
+const TEMPLATE_API_ORIGIN = 'http://nurse.5gao.ai:8067'
+
 function getTemplateApiConfig() {
   const baseURL = window.endpoint?.templateApiBaseURL || 'http://localhost:8067'
   const timeout = window.endpoint?.templateApiTimeout || 120000
@@ -34,7 +36,18 @@ async function readErrorMessage(response) {
 
 function toAbsoluteUrl(baseURL, url) {
   if (!url) return ''
-  if (/^https?:\/\//i.test(url)) return url
+
+  if (/^https?:\/\//i.test(url)) {
+    const source = new URL(url)
+    const templateApiOrigin = new URL(TEMPLATE_API_ORIGIN)
+
+    if (source.origin === templateApiOrigin.origin) {
+      return `${baseURL}${source.pathname}${source.search}${source.hash}`
+    }
+
+    return url
+  }
+
   return `${baseURL}${url.startsWith('/') ? '' : '/'}${url}`
 }
 

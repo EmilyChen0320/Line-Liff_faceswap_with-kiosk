@@ -16,8 +16,8 @@
       authToken: '123',
       // 請求超時時間（毫秒）
       timeout: 30000,
-      // Ali Image Studio 模板生圖 API - 部署時改成實際內網 IP，例如 http://192.168.1.100:8067
-      templateApiBaseURL: 'http://nurse.5gao.ai:8067/',
+      // Ali Image Studio 模板生圖 API - Vercel 透過同網域 proxy 轉發，避免 HTTPS 頁面呼叫 HTTP API 被瀏覽器阻擋
+      templateApiBaseURL: '/template-api',
       // 企業日模板 ID 對應，可在正式模板建立後直接改這裡
       enterpriseTemplateIds: {
         chef: {
