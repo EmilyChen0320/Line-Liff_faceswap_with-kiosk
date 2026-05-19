@@ -20,7 +20,7 @@ import enterpriseGenderFemaleSelectedImg from '../../../public/images/選擇性�
 import enterpriseGenderMaleDefaultImg from '../../../public/images/選擇性別(男_Default).png'
 import enterpriseGenderMaleSelectedImg from '../../../public/images/選擇性別(男_Selected).png'
 import enterpriseSanliFemaleDefaultImg from '../../../public/images/三立電視台(女_Default).png'
-import enterpriseSanliFemaleSelectedImg from '../../../public/images/三立電視台(女_Ｓelected).png'
+import enterpriseSanliFemaleSelectedImg from '../../../public/images/三立電視台(女Selected).png'
 import enterpriseSanliMaleDefaultImg from '../../../public/images/三立電視台(男_Default).png'
 import enterpriseSanliMaleSelectedImg from '../../../public/images/三立電視台(男_Ｓelected).png'
 import enterpriseChefFemaleDefaultImg from '../../../public/images/型男大主廚(女_Default).png'
