@@ -31,7 +31,7 @@
         />
 
         <div class="relative z-30 flex h-full flex-col items-center px-[92px] pb-[110px] pt-[150px]">
-          <div class="mb-[92px] flex w-full items-end justify-center gap-2.5">
+          <div class="mb-[192px] flex w-full items-end justify-center gap-2.5">
             <span class="inline-block skew-x-[-4deg] text-[38px] leading-8 text-[#888888]">步驟 1/4</span>
             <span class="inline-block scale-y-[0.99] skew-x-[-6deg] text-[58px] font-bold leading-[50px] text-[#222222]">
               選擇性別
@@ -39,7 +39,7 @@
           </div>
 
           <div class="flex w-full flex-col items-center gap-[172px]">
-            <div class="grid w-full grid-cols-2 gap-9">
+            <div class="grid grid-cols-[262px_262px] justify-center gap-x-[152px]">
               <button
                 v-for="gender in ENTERPRISE_GENDERS"
                 :key="gender.id"
