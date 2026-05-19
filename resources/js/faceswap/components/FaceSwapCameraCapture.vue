@@ -118,7 +118,7 @@
               @click="nextStep"
               @touchend.prevent="nextStep"
             >
-              <img :src="imageUrls.enterprise.nextFocusLarge" alt="下一步" class="h-full w-full object-contain" draggable="false" />
+              <img :src="imageUrls.enterprise.cameraNextButton" alt="下一步" class="h-full w-full object-contain" draggable="false" />
             </button>
           </div>
 

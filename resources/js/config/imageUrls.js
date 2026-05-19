@@ -8,6 +8,7 @@ import enterpriseBackTextImg from '../../../public/images/back文字.png'
 import enterpriseBackToHomeImg from '../../../public/images/backtohome.png'
 import enterpriseNextDisabledLargeImg from '../../../public/images/下一步 Disabled_large.png'
 import enterpriseNextFocusLargeImg from '../../../public/images/下一步 Focus_large.png'
+import enterpriseCameraNextButtonImg from '../../../public/images/next.png'
 import enterpriseDownloadButtonImg from '../../../public/images/下載圖片_btn.png'
 import enterpriseRestartButtonImg from '../../../public/images/重新開始_btn.png'
 import enterpriseRetakeIpButtonImg from '../../../public/images/重選IP.png'
@@ -47,6 +48,7 @@ export const imageUrls = {
     backToHome: enterpriseBackToHomeImg,
     nextDisabledLarge: enterpriseNextDisabledLargeImg,
     nextFocusLarge: enterpriseNextFocusLargeImg,
+    cameraNextButton: enterpriseCameraNextButtonImg,
     downloadButton: enterpriseDownloadButtonImg,
     restartButton: enterpriseRestartButtonImg,
     retakeIpButton: enterpriseRetakeIpButtonImg,
