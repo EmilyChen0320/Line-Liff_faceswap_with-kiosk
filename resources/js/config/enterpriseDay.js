@@ -3,13 +3,13 @@ import { imageUrls } from './imageUrls.js'
 export const ENTERPRISE_GENDERS = [
   {
     id: 'male',
-    name: '男生',
+    name: '男性',
     defaultImage: imageUrls.enterprise.gender.male.default,
     selectedImage: imageUrls.enterprise.gender.male.selected,
   },
   {
     id: 'female',
-    name: '女生',
+    name: '女性',
     defaultImage: imageUrls.enterprise.gender.female.default,
     selectedImage: imageUrls.enterprise.gender.female.selected,
   },
@@ -19,7 +19,7 @@ export const ENTERPRISE_TEMPLATES = [
   {
     id: 'sanliTv',
     configKey: 'sanliTv',
-    name: '三立電視台',
+    name: '三立新聞台',
     images: imageUrls.enterprise.templates.sanliTv,
   },
   {
