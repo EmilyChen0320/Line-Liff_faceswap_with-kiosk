@@ -30,7 +30,6 @@ export const roadshowService = {
             const url = `${config.baseURL}/roadshow/templates`;
             
             console.log('🔍 發送請求到:', url);
-            console.log('🔐 使用認證token:', config.authToken);
             
             const response = await fetch(url, {
                 method: 'GET',
@@ -132,7 +131,6 @@ export const roadshowService = {
             const url = `${config.baseURL}/roadshow`;
             
             console.log('🚀 發送生成頭像請求到:', url);
-            console.log('🔐 使用認證token:', config.authToken);
             
             // 檢查 FormData 內容
             console.log('📋 FormData 內容:');
@@ -216,7 +214,6 @@ export const roadshowService = {
             const url = `${config.baseURL}/roadshow/status/${taskId}`;
             
             console.log('🔍 檢查任務狀態:', url);
-            console.log('🔐 使用認證token:', config.authToken);
             
             const response = await fetch(url, {
                 method: 'GET',

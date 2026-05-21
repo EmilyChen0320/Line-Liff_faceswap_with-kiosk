@@ -69,7 +69,7 @@ window.endpoint = {
       male: 8
     }
   },
-  debug: true,
+  debug: false,
   imageProcessApi: 'https://stg-api.fanpokka.ai/api/static-resource',
   imageProcessParams: {
     scale: 2,
@@ -159,7 +159,7 @@ line-liff-faceSwap/
 
 ### 啟用調試模式
 
-在 `index.html` 中設置：
+正式環境請保持 `debug: false`。本機排查非敏感設定時，可暫時在 `index.html` 中設置：
 
 ```javascript
 window.endpoint = {
@@ -168,7 +168,7 @@ window.endpoint = {
 };
 ```
 
-調試模式會在控制台輸出目前 API 與圖片處理設定。
+調試模式只應輸出非敏感資訊，例如圖片處理端點與參數；不可輸出 `authToken`、`x-api-key`、headers 或完整 `window.endpoint`。
 
 ### 添加新模板
 

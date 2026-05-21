@@ -37,8 +37,8 @@
           male: 8
         }
       },
-      // 調試模式 - 設為 true 可以在控制台看到詳細日誌
-      debug: true,
+      // 調試模式 - 正式環境保持 false，避免輸出敏感配置
+      debug: false,
       
       // ===== 圖片處理 API 配置 =====
       // 圖片處理 API 端點 - 修改這裡來改變圖片處理服務器
@@ -69,10 +69,8 @@
       // gcsUploadApi: 'https://your-api.com/api/upload-to-gcs'
     };
     
-    // 輸出配置到控制台（如果啟用調試模式）
+    // 輸出非敏感配置到控制台（如果啟用調試模式）
     if (window.endpoint.debug) {
-      console.log('🔧 當前 API 配置:', window.endpoint);
-      
       // 檢查是否在開發環境
       if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
         console.log('🌐 檢測到本地開發環境');
