@@ -61,12 +61,6 @@
       imageUploadHeaders: {
         'x-api-key': 'ak_f8eb8db2d517feaaf41558f108d7862ee93c84c9d81457794b9a821dd5b0b360'
       },
-
-      // ===== 裝置模式配置 =====
-      // 裝置模式：'auto' 自動偵測 | 'kiosk' 強制 Kiosk 模式 | 'mobile' 強制手機模式
-      deviceMode: 'auto',
-      // Kiosk 裝置 ID（用於識別不同的 Kiosk 設備）
-      kioskId: 'kiosk_test_004',
       
       // ===== GCS 上傳配置 =====
       // 是否啟用 GCS 上傳功能（等後端 API 準備好後設為 true）
@@ -91,11 +85,6 @@
         console.log('  - 參數:', window.endpoint.imageProcessParams);
         console.log('💡 修改這些配置可以調整圖片處理效果');
       }
-      
-      // 輸出裝置模式配置
-      console.log('📱 裝置模式配置:');
-      console.log('  - 模式:', window.endpoint.deviceMode);
-      console.log('  - Kiosk ID:', window.endpoint.kioskId);
     }
   </script>
   
