@@ -43,12 +43,11 @@ npm install
 
 2. 配置環境
 
-編輯 `index.html` 的 `window.endpoint`，設定 API、模板 ID、圖片處理與圖片上傳參數：
+編輯 `index.html` 的 `window.endpoint`，設定 API、模板 ID 與圖片處理參數：
 
 ```javascript
 window.endpoint = {
   baseURL: 'https://your-api-server.com/api',
-  authToken: '123',
   timeout: 30000,
   templateApiBaseURL: '/template-api',
   enterpriseTemplateIds: {
@@ -79,10 +78,6 @@ window.endpoint = {
     height: 600
   },
   enableImageProcessing: true,
-  imageUploadApi: 'https://stg-line-crm.fanpokka.ai/partner/v1/files/upload',
-  imageUploadHeaders: {
-    'x-api-key': 'YOUR_API_KEY'
-  },
   enableGCSUpload: false
 };
 ```
@@ -153,7 +148,8 @@ line-liff-faceSwap/
 
 ### 圖片處理與上傳
 - `imageProcessApi` / `imageProcessParams` 控制圖片處理服務設定。
-- `imageUploadApi` / `imageUploadHeaders` 控制結果圖上傳服務設定。
+- 敏感憑證不可放在 `index.html`、前端 bundle 或任何 client-side config。
+- 若未來需要恢復 LINE CRM 圖片上傳，應改由 server-side proxy 持有上傳憑證並代打 LINE CRM API。
 
 ## 開發指南
 
@@ -168,7 +164,7 @@ window.endpoint = {
 };
 ```
 
-調試模式只應輸出非敏感資訊，例如圖片處理端點與參數；不可輸出 `authToken`、`x-api-key`、headers 或完整 `window.endpoint`。
+調試模式只應輸出非敏感資訊，例如圖片處理端點與參數；不可輸出 token、API key、headers 或完整 `window.endpoint`。
 
 ### 添加新模板
 

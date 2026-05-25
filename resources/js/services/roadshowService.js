@@ -7,7 +7,7 @@ const getApiConfig = () => {
     if (typeof window !== 'undefined' && window.endpoint) {
         return {
             baseURL: window.endpoint.baseURL || 'https://stg-line-crm.fanpokka.ai/api',
-            authToken: window.endpoint.authToken || '123',
+            authToken: window.endpoint.authToken,
             timeout: window.endpoint.timeout || 30000
         };
     }
@@ -15,10 +15,14 @@ const getApiConfig = () => {
     // 默認配置
     return {
         baseURL: 'https://stg-line-crm.fanpokka.ai/api',
-        authToken: '123',
+        authToken: undefined,
         timeout: 30000
     };
 };
+
+const getAuthHeaders = (config) => (
+    config.authToken ? { 'Authorization': `Bearer ${config.authToken}` } : {}
+);
 
 export const roadshowService = {
     /**
@@ -35,7 +39,7 @@ export const roadshowService = {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
-                    'Authorization': `Bearer ${config.authToken}`
+                    ...getAuthHeaders(config)
                 }
             });
             
@@ -77,7 +81,7 @@ export const roadshowService = {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
-                    'Authorization': `Bearer ${config.authToken}`
+                    ...getAuthHeaders(config)
                 }
             });
             
@@ -142,7 +146,7 @@ export const roadshowService = {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
-                    'Authorization': `Bearer ${config.authToken}`
+                    ...getAuthHeaders(config)
                 },
                 body: formData
             });
@@ -219,7 +223,7 @@ export const roadshowService = {
                 method: 'GET',
                 headers: {
                     'Accept': 'application/json',
-                    'Authorization': `Bearer ${config.authToken}`
+                    ...getAuthHeaders(config)
                 }
             });
             
@@ -443,7 +447,7 @@ export const roadshowService = {
                 method: 'POST',
                 headers: {
                     'Accept': 'application/json',
-                    'Authorization': `Bearer ${config.authToken}`
+                    ...getAuthHeaders(config)
                 },
                 body: formData
             });
@@ -504,7 +508,7 @@ export const roadshowService = {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${config.authToken}`
+                    ...getAuthHeaders(config)
                 },
                 body: JSON.stringify({
                     phone: params.phone,
@@ -596,7 +600,7 @@ export const roadshowService = {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${config.authToken}`
+                    ...getAuthHeaders(config)
                 },
                 body: JSON.stringify(requestBody)
             });
@@ -673,7 +677,7 @@ export const roadshowService = {
                 headers: {
                     'Accept': 'application/json',
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${config.authToken}`
+                    ...getAuthHeaders(config)
                 },
                 body: JSON.stringify({
                     name: params.name,

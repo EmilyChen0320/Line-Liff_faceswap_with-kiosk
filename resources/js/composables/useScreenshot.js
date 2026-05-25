@@ -343,14 +343,19 @@ export function useScreenshot() {
 
   // PC 版上傳圖片到伺服器（使用 imageUploadApi）
   async function uploadImageForPC(blob, filename = 'screenshot') {
+    const uploadApi = window.endpoint?.imageUploadApi
+
+    if (!uploadApi) {
+      throw new Error('圖片上傳 API 未設定')
+    }
+
     const formData = new FormData()
     formData.append('file', blob, `${filename}.png`)
     formData.append('type', 'image')
 
-    const response = await fetch(window.endpoint.imageUploadApi, {
+    const response = await fetch(uploadApi, {
       method: 'POST',
       headers: {
-        ...window.endpoint.imageUploadHeaders,
         'X-Requested-With': 'XMLHttpRequest'
       },
       body: formData

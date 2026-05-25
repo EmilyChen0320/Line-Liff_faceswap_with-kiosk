@@ -12,8 +12,6 @@
     window.endpoint = {
       // API 基礎 URL - 修改這裡來改變 API 伺服器地址
       baseURL: 'https://pp.2025.aitago.tw/api',
-      // 認證 Token
-      authToken: '123',
       // 請求超時時間（毫秒）
       timeout: 30000,
       // Ali Image Studio 模板生圖 API - Vercel 透過同網域 proxy 轉發，避免 HTTPS 頁面呼叫 HTTP API 被瀏覽器阻擋
@@ -53,14 +51,6 @@
       },
       // 是否啟用圖片處理功能
       enableImageProcessing: true,
-
-      // ===== 圖片上傳 API 配置 =====
-      // 圖片上傳 API 端點
-      imageUploadApi: 'https://stg-line-crm.fanpokka.ai/partner/v1/files/upload',
-      // 圖片上傳請求頭
-      imageUploadHeaders: {
-        'x-api-key': 'ak_f8eb8db2d517feaaf41558f108d7862ee93c84c9d81457794b9a821dd5b0b360'
-      },
       
       // ===== GCS 上傳配置 =====
       // 是否啟用 GCS 上傳功能（等後端 API 準備好後設為 true）
