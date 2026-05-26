@@ -2,12 +2,19 @@
   <main class="min-h-screen overscroll-none bg-white px-5 py-8 font-noto-sans-tc text-black">
     <div class="mx-auto flex min-h-[calc(100vh-64px)] max-w-[520px] flex-col items-center justify-center gap-6">
       <div class="flex w-full items-center justify-center overflow-hidden rounded-[28px] border-[10px] border-black bg-white">
-        <img
+        <a
           v-if="imageUrl"
-          :src="imageUrl"
-          alt="生成結果"
-          class="block max-h-[68vh] max-w-full object-contain [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
-        />
+          :href="imageUrl"
+          target="_blank"
+          rel="noopener"
+          class="block max-h-[68vh] max-w-full [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
+        >
+          <img
+            :src="imageUrl"
+            alt="生成結果"
+            class="block max-h-[68vh] max-w-full object-contain [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
+          />
+        </a>
         <div v-else class="px-6 py-16 text-center text-base font-bold text-[#202020]">
           找不到生成圖片
         </div>
@@ -37,8 +44,8 @@ const isAndroidLine = /Android/i.test(userAgent) && /Line\//i.test(userAgent)
 
 const primaryMessage = computed(() => {
   if (!props.imageUrl) return '圖片網址無效'
-  if (isAndroidLine) return '請開啟外部瀏覽器後長按圖片儲存'
-  return '長按圖片可儲存'
+  if (isAndroidLine) return '請開啟外部瀏覽器後，點圖片開啟原圖並長按儲存'
+  return '點圖片開啟原圖，長按圖片可儲存'
 })
 
 const backgroundTargets = []
