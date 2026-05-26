@@ -1,13 +1,13 @@
 <template>
   <main class="min-h-screen overscroll-none bg-white px-5 py-8 font-noto-sans-tc text-black">
     <div class="mx-auto flex min-h-[calc(100vh-64px)] max-w-[520px] flex-col items-center justify-center gap-6">
-      <div class="flex w-full items-center justify-center overflow-hidden rounded-[28px] border-[10px] border-black bg-white">
+      <div class="flex w-full items-center justify-center overflow-hidden rounded-[28px] border-[10px] border-black bg-black">
         <a
           v-if="imageUrl"
           :href="imageUrl"
           target="_blank"
           rel="noopener"
-          class="block w-full [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
+          class="block w-full overflow-hidden rounded-[18px] bg-black [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
         >
           <img
             :src="imageUrl"
