@@ -7,13 +7,13 @@
           :href="imageUrl"
           target="_blank"
           rel="noopener"
-          class="flex max-h-[68vh] w-full items-center justify-center [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
+          class="block w-full [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
         >
           <img
             :src="imageUrl"
             alt="生成結果"
             @contextmenu.stop
-            class="block max-h-[68vh] max-w-full object-contain [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
+            class="block h-auto w-full [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
           />
         </a>
         <div v-else class="px-6 py-16 text-center text-base font-bold text-[#202020]">
@@ -41,11 +41,11 @@ const props = defineProps({
 })
 
 const userAgent = navigator.userAgent || ''
-const isAndroidLine = /Android/i.test(userAgent) && /Line\//i.test(userAgent)
+const isLineWebView = /Line\//i.test(userAgent)
 
 const primaryMessage = computed(() => {
   if (!props.imageUrl) return '圖片網址無效'
-  if (isAndroidLine) return '請開啟外部瀏覽器後，點圖片開啟原圖並長按儲存'
+  if (isLineWebView) return '請開啟外部瀏覽器後，點圖片開啟原圖並長按儲存'
   return '點圖片開啟原圖，長按圖片可儲存'
 })
 
