@@ -1,5 +1,5 @@
 <template>
-  <main class="min-h-screen px-5 py-8 font-noto-sans-tc text-black">
+  <main class="min-h-screen bg-white px-5 py-8 font-noto-sans-tc text-black">
     <div class="mx-auto flex min-h-[calc(100vh-64px)] max-w-[520px] flex-col items-center justify-center gap-6">
       <div class="w-full overflow-hidden rounded-lg bg-transparent">
         <img
