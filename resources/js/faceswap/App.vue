@@ -41,12 +41,6 @@
             :generated-image-url="generatedImageUrl"
             @restart="handleRestart"
           />
-
-          <ImageDownloadPage
-            v-if="currentStep === 'download'"
-            :image-url="downloadImageUrl"
-            @home="handleRestart"
-          />
         </div>
       </div>
     </div>
@@ -59,7 +53,6 @@ import EnterpriseGenderSelection from './components/EnterpriseGenderSelection.vu
 import EnterpriseTemplateSelection from './components/EnterpriseTemplateSelection.vue'
 import FaceSwapCameraCapture from './components/FaceSwapCameraCapture.vue'
 import FaceSwapResult from './components/FaceSwapResult.vue'
-import ImageDownloadPage from './components/ImageDownloadPage.vue'
 import KioskHomepage from './components/kiosk/KioskHomepage.vue'
 import { aliImageStudioService } from '../services/aliImageStudioService.js'
 import { getEnterpriseTemplateApiId } from '../config/enterpriseDay.js'
@@ -73,7 +66,6 @@ const currentStep = ref('faceswap-home')
 const selectedGender = ref('')
 const selectedTemplate = ref('')
 const generatedImageUrl = ref('')
-const downloadImageUrl = ref('')
 const isGenerating = ref(false)
 const previewScale = ref(1)
 
@@ -96,13 +88,12 @@ function initializeApp() {
   const urlParams = new URLSearchParams(window.location.search)
   const stepParam = urlParams.get('step')
   const testTaskId = urlParams.get('taskId')
-  const validSteps = ['faceswap-home', 'gender-selection', 'template-selection', 'upload', 'result', 'download']
+  const validSteps = ['faceswap-home', 'gender-selection', 'template-selection', 'upload', 'result']
 
   currentStep.value = validSteps.includes(stepParam) ? stepParam : 'faceswap-home'
   selectedGender.value = ''
   selectedTemplate.value = ''
   generatedImageUrl.value = ''
-  downloadImageUrl.value = ''
   taskId.value = ''
 
   if (currentStep.value === 'result') {
@@ -110,11 +101,6 @@ function initializeApp() {
     selectedGender.value = 'female'
     selectedTemplate.value = 'sanliTv'
     generatedImageUrl.value = imageUrls.profile
-  }
-
-  if (currentStep.value === 'download') {
-    const imageUrlParam = urlParams.get('imageUrl')
-    downloadImageUrl.value = imageUrlParam ? new URL(imageUrlParam, window.location.origin).href : ''
   }
 }
 
@@ -181,7 +167,6 @@ function handleRestart() {
   selectedGender.value = ''
   selectedTemplate.value = ''
   generatedImageUrl.value = ''
-  downloadImageUrl.value = ''
   isGenerating.value = false
 }
 

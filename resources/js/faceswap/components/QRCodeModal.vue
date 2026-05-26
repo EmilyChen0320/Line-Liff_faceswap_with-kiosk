@@ -51,11 +51,7 @@ const qrcodeContainer = ref(null)
 
 const qrcodeUrl = computed(() => {
   if (!props.imageUrl) return ''
-  const imageUrl = new URL(props.imageUrl, window.location.origin).href
-  const downloadUrl = new URL(window.location.pathname, window.location.origin)
-  downloadUrl.searchParams.set('step', 'download')
-  downloadUrl.searchParams.set('imageUrl', imageUrl)
-  return downloadUrl.href
+  return new URL(props.imageUrl, window.location.origin).href
 })
 
 function applyGradientToCanvas(canvas) {
