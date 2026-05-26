@@ -6,8 +6,7 @@
           v-if="imageUrl"
           :src="imageUrl"
           alt="生成結果"
-          class="block max-h-[68vh] max-w-full object-contain"
-          draggable="false"
+          class="block max-h-[68vh] max-w-full object-contain [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
         />
         <div v-else class="px-6 py-16 text-center text-base font-bold text-[#202020]">
           找不到生成圖片
