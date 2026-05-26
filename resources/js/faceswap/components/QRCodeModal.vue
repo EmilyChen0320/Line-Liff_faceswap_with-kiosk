@@ -51,37 +51,11 @@ const qrcodeContainer = ref(null)
 
 const qrcodeUrl = computed(() => {
   if (!props.imageUrl) return ''
-  return new URL(props.imageUrl, window.location.origin).href
+  const downloadUrl = new URL('/', window.location.origin)
+  downloadUrl.searchParams.set('step', 'download')
+  downloadUrl.searchParams.set('imageUrl', new URL(props.imageUrl, window.location.origin).href)
+  return downloadUrl.href
 })
-
-function applyGradientToCanvas(canvas) {
-  const ctx = canvas.getContext('2d')
-  const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height)
-  const data = imageData.data
-  const gradient = ctx.createLinearGradient(0, 0, canvas.width, canvas.height)
-  gradient.addColorStop(0, '#9995F8')
-  gradient.addColorStop(1, '#BF21FB')
-
-  const tempCanvas = document.createElement('canvas')
-  tempCanvas.width = canvas.width
-  tempCanvas.height = canvas.height
-  const tempCtx = tempCanvas.getContext('2d')
-
-  tempCtx.fillStyle = gradient
-  tempCtx.fillRect(0, 0, canvas.width, canvas.height)
-  const gradientData = tempCtx.getImageData(0, 0, canvas.width, canvas.height)
-
-  for (let i = 0; i < data.length; i += 4) {
-    const isDarkPixel = data[i] < 128 && data[i + 1] < 128 && data[i + 2] < 128
-    if (isDarkPixel) {
-      data[i] = gradientData.data[i]
-      data[i + 1] = gradientData.data[i + 1]
-      data[i + 2] = gradientData.data[i + 2]
-    }
-  }
-
-  ctx.putImageData(imageData, 0, 0)
-}
 
 watch(() => props.isVisible, async (newVal) => {
   if (!newVal || !qrcodeUrl.value) return
@@ -93,15 +67,14 @@ watch(() => props.isVisible, async (newVal) => {
 
   try {
     const canvas = await QRCode.toCanvas(qrcodeUrl.value, {
-      width: 250,
-      margin: 1,
+      width: 260,
+      margin: 3,
       color: {
         dark: '#000000',
         light: '#FFFFFF',
       },
     })
 
-    applyGradientToCanvas(canvas)
     canvas.style.borderRadius = '0'
     qrcodeContainer.value.appendChild(canvas)
   } catch (error) {
