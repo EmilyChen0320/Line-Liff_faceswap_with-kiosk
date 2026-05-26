@@ -7,11 +7,12 @@
           :href="imageUrl"
           target="_blank"
           rel="noopener"
-          class="block max-h-[68vh] max-w-full [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
+          class="flex max-h-[68vh] w-full items-center justify-center [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
         >
           <img
             :src="imageUrl"
             alt="生成結果"
+            @contextmenu.stop
             class="block max-h-[68vh] max-w-full object-contain [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
           />
         </a>
