@@ -21,7 +21,15 @@
         </div>
       </div>
 
-      <section class="w-full text-center">
+      <img
+        v-if="isLineWebView && imageUrl"
+        src="/images/test.png"
+        alt="LINE 外部瀏覽器操作示範"
+        class="block h-auto w-full"
+        draggable="false"
+      />
+
+      <section v-else class="w-full text-center">
         <p class="text-[20px] font-bold leading-[1.45]">
           {{ primaryMessage }}
         </p>
@@ -45,8 +53,7 @@ const isLineWebView = /Line\//i.test(userAgent)
 
 const primaryMessage = computed(() => {
   if (!props.imageUrl) return '圖片網址無效'
-  if (isLineWebView) return '請開啟外部瀏覽器後，點圖片開啟原圖並長按儲存'
-  return '點圖片開啟原圖，長按圖片可儲存'
+  return '請長按圖片儲存'
 })
 
 const backgroundTargets = []
