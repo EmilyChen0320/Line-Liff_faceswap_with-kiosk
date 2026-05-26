@@ -1,5 +1,10 @@
 <template>
-  <div class="min-h-screen w-screen overflow-auto bg-black font-noto-sans-tc">
+  <ImageDownloadPage
+    v-if="currentStep === 'download'"
+    :image-url="downloadImageUrl"
+  />
+
+  <div v-else class="min-h-screen w-screen overflow-auto bg-black font-noto-sans-tc">
     <div class="flex min-h-screen items-start justify-center">
       <div :style="previewFrameStyle" class="relative shrink-0">
         <div
@@ -53,6 +58,7 @@ import EnterpriseGenderSelection from './components/EnterpriseGenderSelection.vu
 import EnterpriseTemplateSelection from './components/EnterpriseTemplateSelection.vue'
 import FaceSwapCameraCapture from './components/FaceSwapCameraCapture.vue'
 import FaceSwapResult from './components/FaceSwapResult.vue'
+import ImageDownloadPage from './components/ImageDownloadPage.vue'
 import KioskHomepage from './components/kiosk/KioskHomepage.vue'
 import { aliImageStudioService } from '../services/aliImageStudioService.js'
 import { getEnterpriseTemplateApiId } from '../config/enterpriseDay.js'
@@ -66,6 +72,7 @@ const currentStep = ref('faceswap-home')
 const selectedGender = ref('')
 const selectedTemplate = ref('')
 const generatedImageUrl = ref('')
+const downloadImageUrl = ref('')
 const isGenerating = ref(false)
 const previewScale = ref(1)
 
@@ -87,14 +94,21 @@ function updatePreviewScale() {
 function initializeApp() {
   const urlParams = new URLSearchParams(window.location.search)
   const stepParam = urlParams.get('step')
+  const imageUrlParam = urlParams.get('imageUrl')
   const testTaskId = urlParams.get('taskId')
-  const validSteps = ['faceswap-home', 'gender-selection', 'template-selection', 'upload', 'result']
+  const validSteps = ['faceswap-home', 'gender-selection', 'template-selection', 'upload', 'result', 'download']
 
   currentStep.value = validSteps.includes(stepParam) ? stepParam : 'faceswap-home'
   selectedGender.value = ''
   selectedTemplate.value = ''
   generatedImageUrl.value = ''
+  downloadImageUrl.value = ''
   taskId.value = ''
+
+  if (currentStep.value === 'download') {
+    downloadImageUrl.value = imageUrlParam || ''
+    return
+  }
 
   if (currentStep.value === 'result') {
     taskId.value = testTaskId || 'test-task-preview'
@@ -105,6 +119,8 @@ function initializeApp() {
 }
 
 onMounted(() => {
+  if (currentStep.value === 'download') return
+
   updatePreviewScale()
   window.addEventListener('resize', updatePreviewScale)
 })
