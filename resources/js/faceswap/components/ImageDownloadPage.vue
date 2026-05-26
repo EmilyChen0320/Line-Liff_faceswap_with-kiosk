@@ -23,7 +23,7 @@
 
       <img
         v-if="isLineWebView && imageUrl"
-        src="/images/test.png"
+        :src="lineInstructionImage"
         alt="LINE 外部瀏覽器操作示範"
         class="block h-auto w-full"
         draggable="false"
@@ -40,6 +40,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted } from 'vue'
+import lineInstructionImage from '../../../../public/images/test.png'
 
 const props = defineProps({
   imageUrl: {
