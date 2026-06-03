@@ -38,6 +38,7 @@ export const ENTERPRISE_TEMPLATES = [
     id: 'table',
     configKey: 'table',
     name: '請世界吃桌',
+    visible: false,
     images: imageUrls.enterprise.templates.table,
   },
 ]

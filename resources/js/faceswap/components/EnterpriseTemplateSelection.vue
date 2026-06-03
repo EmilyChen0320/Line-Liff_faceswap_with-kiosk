@@ -40,7 +40,7 @@
 
           <div class="grid h-[952px] w-fit grid-cols-2 gap-x-[124px] gap-y-[60px]">
             <button
-              v-for="template in ENTERPRISE_TEMPLATES"
+              v-for="template in visibleEnterpriseTemplates"
               :key="template.id"
               class="h-[467px] w-[260px] border-0 bg-transparent p-0"
               type="button"
@@ -80,7 +80,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 import { imageUrls } from '@/config/imageUrls'
 import { ENTERPRISE_TEMPLATES } from '@/config/enterpriseDay'
 
@@ -97,7 +97,15 @@ const props = defineProps({
 
 const emit = defineEmits(['next-step', 'home'])
 
-const selectedTemplate = ref(props.initialTemplate)
+const visibleEnterpriseTemplates = computed(() => (
+  ENTERPRISE_TEMPLATES.filter((template) => template.visible !== false)
+))
+
+const selectedTemplate = ref(
+  visibleEnterpriseTemplates.value.some((template) => template.id === props.initialTemplate)
+    ? props.initialTemplate
+    : ''
+)
 
 function selectTemplate(templateId) {
   selectedTemplate.value = templateId
