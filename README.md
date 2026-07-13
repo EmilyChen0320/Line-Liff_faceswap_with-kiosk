@@ -1,205 +1,87 @@
-# 3Q Day Kiosk Face Swap
+# ESG 與戰地阿特合影 Kiosk
 
-3Q Day 活動用的 kiosk 版 AI 換臉應用。畫面固定以 1080x1920 直式 kiosk 舞台呈現，使用者依序選擇性別與主題，透過現場攝影機拍照後產生結果圖。
+三立 ESG 展區使用的 kiosk 版 AI 合影 / 換臉應用。畫面固定以 1080x1920 直式 kiosk 舞台呈現，使用者選擇性別後，由現場攝影機拍照，送出照片與指定模板 ID 產生合影結果，最後透過 QR Code 在手機開啟並儲存圖片。
 
-## 功能特色
+## 目前流程
 
-### 核心功能
-- AI 換臉生圖
-- 4 組企業日主題模板
-  - 型男大主廚
-  - 戲說台灣
-  - 三立電視台
-  - 請世界吃桌
-- 男性 / 女性模板選擇
-- Kiosk 攝影機拍照
-- 結果圖顯示與下載
+1. 直接進入選擇性別頁
+2. 拍攝照片，倒數 5 秒後自動截圖
+3. 確認照片並送出生圖
+4. 生圖期間顯示進度條
+5. 顯示合影結果
+6. 掃描 QR Code 到手機儲存圖片
 
-### 操作流程
-1. 歡迎頁點擊進入活動
-2. 選擇性別
-3. 選擇主題
-4. 拍照並確認照片
-5. 等待 AI 生成結果
-6. 下載結果圖或重新開始
+## 已調整內容
 
-### 裝置模式
-- 目前專案僅支援 kiosk 版流程。
-- 不支援透過 URL `mode` 參數切換裝置模式。
-- 舊版多裝置分流說明已不適用於目前 3Q Day 專案。
+- 固定為 ESG 單一體驗：與戰地阿特合影
+- 移除 3Q Day 的多模板選擇流程
+- 保留男女模板分流，方便後端用不同 template ID
+- 保留 kiosk 攝影機拍照、結果頁、QR Code 下載流程
+- 生圖期間提供前端模擬進度條，API 完成後補到 100%
+- 前端使用 `battlefieldArt` 作為本次合影模板 key
 
 ## 快速開始
 
-### 環境需求
-- Node.js 16.0 或更高版本
-- npm 或 yarn 套件管理器
+### 安裝依賴
 
-### 安裝步驟
-
-1. 安裝依賴
 ```bash
 npm install
 ```
 
-2. 配置環境
+### 開發
 
-編輯 `index.html` 的 `window.endpoint`，設定 API、模板 ID 與圖片處理參數：
-
-```javascript
-window.endpoint = {
-  baseURL: 'https://your-api-server.com/api',
-  timeout: 30000,
-  templateApiBaseURL: '/template-api',
-  enterpriseTemplateIds: {
-    chef: {
-      female: 1,
-      male: 2
-    },
-    taiwanOpera: {
-      female: 3,
-      male: 4
-    },
-    sanliTv: {
-      female: 5,
-      male: 6
-    },
-    table: {
-      female: 7,
-      male: 8
-    }
-  },
-  debug: false,
-  imageProcessApi: 'https://stg-api.fanpokka.ai/api/static-resource',
-  imageProcessParams: {
-    scale: 2,
-    format: 'jpg',
-    quality: 90,
-    width: 800,
-    height: 600
-  },
-  enableImageProcessing: true,
-  enableGCSUpload: false
-};
-```
-
-3. 啟動開發伺服器
 ```bash
 npm run dev
 ```
 
-4. 打包正式版本
+### 打包
+
 ```bash
 npm run build
 ```
 
-打包後的檔案會輸出到 `dist/` 目錄。
+打包後檔案會輸出到 `dist/`。
 
-## 專案結構
+## Runtime 設定
 
-```text
-line-liff-faceSwap/
-├── dist/                          # 打包輸出目錄
-├── public/                        # 靜態資源
-│   └── images/                    # 公開圖片資源
-├── resources/
-│   ├── css/                       # 樣式表
-│   └── js/
-│       ├── faceswap/
-│       │   ├── App.vue            # Kiosk 主流程
-│       │   └── components/
-│       │       ├── kiosk/
-│       │       │   └── KioskHomepage.vue
-│       │       ├── EnterpriseGenderSelection.vue
-│       │       ├── EnterpriseTemplateSelection.vue
-│       │       ├── FaceSwapCameraCapture.vue
-│       │       ├── FaceSwapResult.vue
-│       │       └── QRCodeModal.vue
-│       ├── services/
-│       │   ├── aliImageStudioService.js
-│       │   ├── roadshowService.js
-│       │   └── streamService.js
-│       ├── config/
-│       │   ├── enterpriseDay.js
-│       │   └── imageUrls.js
-│       └── app.js
-├── index.html
-├── vite.config.js
-├── package.json
-├── tailwind.config.cjs
-└── README.md
+`index.html` 內的 `window.endpoint` 可在打包後調整，主要設定如下：
+
+```js
+window.endpoint = {
+  baseURL: 'https://example.com/api',
+  timeout: 30000,
+  templateApiBaseURL: 'http://set.fanpokka.ai:8067',
+  debug: false,
+}
 ```
 
-## 技術棧
+模板 ID 會先透過 `GET /api/templates` 依 `ESG` 與性別字樣自動解析。
 
-- Vue 3
-- Vite 5
-- Tailwind CSS
-- axios
-- html2canvas
-- qrcode
-- lottie-web
+## 主要檔案
+
+- `resources/js/faceswap/App.vue`：kiosk 主流程
+- `resources/js/config/enterpriseDay.js`：ESG 合影模板與性別設定
+- `resources/js/faceswap/components/EnterpriseGenderSelection.vue`：性別選擇
+- `resources/js/faceswap/components/FaceSwapCameraCapture.vue`：拍照、倒數、送出生圖與進度條
+- `resources/js/faceswap/components/FaceSwapResult.vue`：結果頁與 QR Code
+- `resources/js/faceswap/components/QRCodeModal.vue`：手機掃碼下載彈窗
 
 ## API 整合
 
-### Ali Image Studio 模板生圖
-- 前端透過 `templateApiBaseURL` 呼叫模板生圖 API。
-- Vercel 部署預設使用同網域 `/template-api` proxy，避免 HTTPS 頁面呼叫 HTTP API 被瀏覽器阻擋。
-- 模板 ID 由 `enterpriseTemplateIds` 設定，並透過 `resources/js/config/enterpriseDay.js` 依主題與性別取值。
+目前使用既有模板生圖服務封裝：
 
-### 圖片處理與上傳
-- `imageProcessApi` / `imageProcessParams` 控制圖片處理服務設定。
-- 敏感憑證不可放在 `index.html`、前端 bundle 或任何 client-side config。
-- 若未來需要恢復 LINE CRM 圖片上傳，應改由 server-side proxy 持有上傳憑證並代打 LINE CRM API。
-
-## 開發指南
-
-### 啟用調試模式
-
-正式環境請保持 `debug: false`。本機排查非敏感設定時，可暫時在 `index.html` 中設置：
-
-```javascript
-window.endpoint = {
-  // ...
-  debug: true
-};
-```
-
-調試模式只應輸出非敏感資訊，例如圖片處理端點與參數；不可輸出 token、API key、headers 或完整 `window.endpoint`。
-
-### 添加新模板
-
-1. 準備模板圖片與選取狀態素材
-2. 在 `imageUrls.js` 中添加圖片 URL
-3. 更新 `EnterpriseTemplateSelection.vue` 的主題選項
-4. 更新 `enterpriseDay.js` 與 `window.endpoint.enterpriseTemplateIds` 的模板 ID 對應
-
-### 自定義樣式
-
-本專案使用 Tailwind CSS，可以透過修改 `tailwind.config.cjs` 自定義主題。
-
-## 故障排除
-
-### 無法啟動攝影機
-- 檢查瀏覽器攝影機權限
-- 確認使用 HTTPS 或 localhost
-- 確認 kiosk 裝置已連接可用攝影機
-
-### 照片生成失敗
-- 確認模板 ID 設定正確
-- 檢查 `templateApiBaseURL` 是否能連到模板生圖 API
-- 檢查照片格式與大小
-- 查看瀏覽器 console 的 API 錯誤訊息
-
-### URL mode 參數沒有作用
-- 這是目前預期行為。
-- 3Q Day 專案固定使用 kiosk 版流程，URL `mode` 參數不會切換裝置模式。
-
-## 授權
-
-本專案為私有專案 (Private)。
+- `resources/js/services/aliImageStudioService.js`
+- `GET {templateApiBaseURL}/api/templates`：查詢 ESG 男 / 女模板
+- `POST {templateApiBaseURL}/api/templates/{templateId}/generate`：送出拍攝照片
+- request body 使用 `multipart/form-data`，欄位為 `image`
+- response 取 `outputs[0].url` 作為結果圖，若為相對路徑會補上 API base URL
+- 是否需要 token 或其他 headers
+- QR short link 是否由後端產生
 
 ## 注意事項
 
-- 本應用需要配合後端 API 使用
-- 生成結果依賴 AI 模型品質
-- 請保護使用者隱私，妥善處理個人照片
+- 本專案目前是 kiosk-only，不做 LIFF 手機版流程。
+- 使用攝影機需要 HTTPS 或 localhost，並需瀏覽器授權。
+- 使用者照片屬於個資，部署時需確認保存、刪除與下載策略。
+- 現階段缺正式模板 ID，需待後端提供後替換 `battlefieldArt` 的男女 ID。
+- 生圖進度條目前是前端模擬進度；若後端未來提供任務進度 API，可改成真實進度。

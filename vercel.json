@@ -1,8 +1,3 @@
 {
-  "rewrites": [
-    {
-      "source": "/template-api/:path*",
-      "destination": "http://nurse.5gao.ai:8067/:path*"
-    }
-  ]
+  "rewrites": []
 }

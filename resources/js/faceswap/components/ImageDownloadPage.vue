@@ -1,13 +1,22 @@
 <template>
-  <main class="min-h-screen overscroll-none bg-white px-5 py-8 font-noto-sans-tc text-black">
-    <div
-      class="mx-auto flex min-h-[calc(100vh-64px)] max-w-[520px] flex-col items-center justify-center"
-      :class="isLineWebView ? 'gap-5' : 'gap-6'"
-    >
-      <div
-        class="flex items-center justify-center overflow-hidden rounded-[28px] border-[10px] border-black bg-black"
-        :class="isLineWebView ? 'w-[78%] max-w-[420px]' : 'w-full'"
-      >
+  <main class="relative min-h-screen overflow-hidden bg-black font-noto-sans-tc text-[#1f1f1f]">
+    <img
+      :src="imageUrls.enterprise.background"
+      alt=""
+      class="absolute inset-0 h-full w-full select-none object-cover"
+      draggable="false"
+    />
+    <div class="absolute inset-0 bg-black/10"></div>
+
+    <img
+      :src="imageUrls.enterprise.backgroundShadow"
+      alt=""
+      class="absolute left-1/2 top-1/2 h-[min(84vh,1630px)] w-[min(92vw,1050px)] -translate-x-1/2 -translate-y-1/2 select-none"
+      draggable="false"
+    />
+
+    <div class="relative z-10 mx-auto flex min-h-screen max-w-[520px] flex-col items-center justify-center gap-6 px-5 py-8">
+      <div class="flex w-full items-center justify-center overflow-hidden rounded-[28px] border-[10px] border-black bg-black shadow-[0_16px_34px_rgba(0,0,0,0.25)]">
         <a
           v-if="imageUrl"
           :href="imageUrl"
@@ -27,15 +36,7 @@
         </div>
       </div>
 
-      <img
-        v-if="isLineWebView && imageUrl"
-        :src="lineInstructionImage"
-        alt="LINE 外部瀏覽器操作示範"
-        class="block h-auto w-full"
-        draggable="false"
-      />
-
-      <section v-else class="w-full text-center">
+      <section class="w-full text-center">
         <p class="text-[20px] font-bold leading-[1.45]">
           {{ primaryMessage }}
         </p>
@@ -46,7 +47,7 @@
 
 <script setup>
 import { computed, onBeforeUnmount, onMounted } from 'vue'
-import lineInstructionImage from '../../../../public/images/test.png'
+import { imageUrls } from '../../config/imageUrls.js'
 
 const props = defineProps({
   imageUrl: {
@@ -54,9 +55,6 @@ const props = defineProps({
     default: '',
   },
 })
-
-const userAgent = navigator.userAgent || ''
-const isLineWebView = /Line\//i.test(userAgent)
 
 const primaryMessage = computed(() => {
   if (!props.imageUrl) return '圖片網址無效'
@@ -75,7 +73,7 @@ onMounted(() => {
   backgroundTargets.forEach((element) => {
     if (!element) return
     element.dataset.previousBackgroundColor = element.style.backgroundColor
-    element.style.backgroundColor = '#ffffff'
+    element.style.backgroundColor = '#000000'
   })
 })
 

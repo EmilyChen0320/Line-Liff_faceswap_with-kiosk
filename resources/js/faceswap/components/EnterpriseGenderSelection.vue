@@ -1,89 +1,103 @@
 <template>
   <div class="relative h-full w-full overflow-hidden bg-black text-[#1f1f1f]">
-    <div
-      class="pointer-events-none absolute inset-0 bg-cover bg-center"
-      :style="{ backgroundImage: `url(${imageUrls.enterprise.background})` }"
-    ></div>
-
-    <main class="relative z-10 flex h-full flex-col items-center">
-      <section class="relative mt-[160px] h-[1503px] w-[960px]">
-        <img
-          :src="imageUrls.enterprise.panel"
-          alt=""
-          class="pointer-events-none absolute inset-0 z-0 h-full w-full select-none object-fill"
-          draggable="false"
-        />
-
-        <button
-          class="absolute left-4 top-[42px] z-40 border-0 bg-transparent p-0"
-          type="button"
-          @click="goHome"
-          @touchend.prevent="goHome"
-        >
-          <img :src="imageUrls.enterprise.backToHome" alt="回首頁" class="block w-[170px] select-none" draggable="false" />
-        </button>
-
-        <img
-          :src="imageUrls.enterprise.logo"
-          alt="2026 企業日"
-          class="pointer-events-none absolute -top-[76px] right-[-16px] z-20 w-[470px] select-none object-contain"
-          draggable="false"
-        />
-
-        <div class="relative z-30 flex h-full flex-col items-center px-[92px] pb-[110px] pt-[150px]">
-          <div class="mb-[192px] flex w-full items-end justify-center gap-2.5">
-            <span class="inline-block skew-x-[-4deg] text-[38px] leading-8 text-[#888888]">步驟 1/4</span>
-            <span class="inline-block scale-y-[0.99] skew-x-[-6deg] text-[58px] font-bold leading-[50px] text-[#222222]">
-              選擇性別
-            </span>
-          </div>
-
-          <div class="flex w-full flex-col items-center gap-[172px]">
-            <div class="grid grid-cols-[262px_262px] justify-center gap-x-[152px]">
-              <button
-                v-for="gender in ENTERPRISE_GENDERS"
-                :key="gender.id"
-                class="border-0 bg-transparent p-0"
-                type="button"
-                @click="selectGender(gender.id)"
-                @touchend.prevent="selectGender(gender.id)"
-              >
-                <img
-                  :src="selectedGender === gender.id ? gender.selectedImage : gender.defaultImage"
-                  :alt="gender.name"
-                  class="block w-full select-none"
-                  draggable="false"
-                />
-              </button>
-            </div>
-
-            <button
-              class="w-[630px] border-0 bg-transparent p-0 disabled:cursor-default"
-              type="button"
-              :disabled="!selectedGender"
-              @click="nextStep"
-              @touchend.prevent="nextStep"
-            >
-              <img :src="nextButtonImage" alt="下一步" class="block w-full select-none" draggable="false" />
-            </button>
-          </div>
-        </div>
-      </section>
-    </main>
-
     <img
-      :src="imageUrls.enterprise.footer"
+      :src="imageUrls.enterprise.background"
       alt=""
-      class="pointer-events-none absolute inset-x-0 bottom-0 z-50 w-full select-none"
+      class="absolute inset-0 h-full w-full select-none object-cover"
       draggable="false"
     />
+    <div class="absolute inset-0 bg-white/5"></div>
+
+    <img
+      :src="imageUrls.enterprise.backgroundShadow"
+      alt=""
+      class="absolute left-[15px] top-[206px] z-10 h-[1630px] w-[1050px] select-none"
+      draggable="false"
+    />
+
+    <img
+      :src="imageUrls.enterprise.badge"
+      alt="與戰地阿特合影"
+      class="absolute left-[547px] top-[150px] z-30 h-[126px] w-[490px] select-none object-contain"
+      draggable="false"
+    />
+
+    <h1
+      class="absolute left-[230px] top-[438px] z-30 w-[620px] text-center text-[52px] font-extrabold leading-[56px] tracking-[2px] text-white [text-shadow:0_0_10px_rgba(0,0,0,0.25)]"
+    >步驟1：選擇性別
+    </h1>
+
+    <button
+      class="absolute left-[156px] top-[617px] z-30 border-0 bg-transparent p-0 [touch-action:manipulation]"
+      type="button"
+      @click="selectGender('male')"
+      @touchend.prevent="selectGender('male')"
+    >
+      <img
+        :src="imageUrls.enterprise.gender.male.photo"
+        alt="男生"
+        class="h-[507px] w-[330px] select-none object-contain"
+        draggable="false"
+      />
+    </button>
+
+    <button
+      class="absolute left-[594px] top-[617px] z-30 border-0 bg-transparent p-0 [touch-action:manipulation]"
+      type="button"
+      @click="selectGender('female')"
+      @touchend.prevent="selectGender('female')"
+    >
+      <img
+        :src="imageUrls.enterprise.gender.female.photo"
+        alt="女生"
+        class="h-[507px] w-[330px] select-none object-contain"
+        draggable="false"
+      />
+    </button>
+
+    <button
+      class="absolute left-[156px] top-[1188px] z-30 h-[126px] w-[330px] border-0 bg-transparent p-0 [touch-action:manipulation]"
+      type="button"
+      @click="selectGender('male')"
+      @touchend.prevent="selectGender('male')"
+    >
+      <img
+        :src="selectedGender === 'male' ? imageUrls.enterprise.gender.male.selected : imageUrls.enterprise.gender.male.default"
+        alt="男生"
+        class="h-full w-full select-none object-contain"
+        draggable="false"
+      />
+    </button>
+
+    <button
+      class="absolute left-[594px] top-[1188px] z-30 h-[126px] w-[330px] border-0 bg-transparent p-0 [touch-action:manipulation]"
+      type="button"
+      @click="selectGender('female')"
+      @touchend.prevent="selectGender('female')"
+    >
+      <img
+        :src="selectedGender === 'female' ? imageUrls.enterprise.gender.female.selected : imageUrls.enterprise.gender.female.default"
+        alt="女生"
+        class="h-full w-full select-none object-contain"
+        draggable="false"
+      />
+    </button>
+
+    <button
+      class="absolute left-[98px] top-[1647px] z-30 flex h-[118px] w-[884px] items-center justify-center rounded-[36px] border border-[#bde5ce] bg-[linear-gradient(105deg,rgba(245,255,245,0.94),rgba(194,243,255,0.86),rgba(255,255,255,0.9))] text-[42px] font-black text-[#36A030] shadow-[0_12px_28px_rgba(0,0,0,0.18)] backdrop-blur-md disabled:opacity-55 [touch-action:manipulation]"
+      type="button"
+      :disabled="!selectedGender"
+      @click="nextStep"
+      @touchend.prevent="nextStep"
+    >
+      下一步
+    </button>
   </div>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import { imageUrls } from '@/config/imageUrls'
-import { ENTERPRISE_GENDERS } from '@/config/enterpriseDay'
 
 const props = defineProps({
   initialGender: {
@@ -92,13 +106,9 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['next-step', 'home'])
+const emit = defineEmits(['next-step'])
 
 const selectedGender = ref(props.initialGender)
-
-const nextButtonImage = computed(() => (
-  selectedGender.value ? imageUrls.enterprise.nextFocusLarge : imageUrls.enterprise.nextDisabledLarge
-))
 
 function selectGender(genderId) {
   selectedGender.value = genderId
@@ -107,9 +117,5 @@ function selectGender(genderId) {
 function nextStep() {
   if (!selectedGender.value) return
   emit('next-step', { selectedGender: selectedGender.value })
-}
-
-function goHome() {
-  emit('home')
 }
 </script>

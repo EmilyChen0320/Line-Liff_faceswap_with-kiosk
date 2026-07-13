@@ -18,8 +18,19 @@
         開啟並儲存圖片
       </p>
 
-      <button type="button" class="mt-[46px] w-[390px] border-0 bg-transparent p-0" @click="close" @touchend.prevent="close">
-        <img :src="imageUrls.enterprise.closeButton" alt="關閉" class="block w-full select-none" draggable="false" />
+      <button
+        type="button"
+        class="relative mt-[46px] flex h-[97px] w-[480px] items-center justify-center border-0 bg-transparent p-0 text-[36px] font-black text-[#36A030] [touch-action:manipulation]"
+        @click="close"
+        @touchend.prevent="close"
+      >
+        <img
+          :src="imageUrls.enterprise.qrModalButton"
+          alt=""
+          class="absolute inset-0 h-full w-full select-none object-fill"
+          draggable="false"
+        />
+        <span class="relative z-10">關閉</span>
       </button>
     </div>
   </div>
@@ -28,7 +39,7 @@
 <script setup>
 import { computed, nextTick, ref, watch } from 'vue'
 import QRCode from 'qrcode'
-import { imageUrls } from '@/config/imageUrls'
+import { imageUrls } from '../../config/imageUrls.js'
 
 const props = defineProps({
   isVisible: {
@@ -51,7 +62,8 @@ const qrcodeContainer = ref(null)
 
 const qrcodeUrl = computed(() => {
   if (!props.imageUrl) return ''
-  const downloadUrl = new URL('/', window.location.origin)
+  const qrCodeBaseURL = window.endpoint?.qrCodeBaseURL || window.location.origin
+  const downloadUrl = new URL('/', qrCodeBaseURL)
   downloadUrl.searchParams.set('step', 'download')
   downloadUrl.searchParams.set('imageUrl', new URL(props.imageUrl, window.location.origin).href)
   return downloadUrl.href

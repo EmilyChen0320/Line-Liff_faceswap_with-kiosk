@@ -1,155 +1,157 @@
 <template>
   <div class="relative h-full w-full overflow-hidden bg-black text-[#1f1f1f]">
-    <div
-      class="pointer-events-none absolute inset-0 bg-cover bg-center"
-      :style="{ backgroundImage: `url(${imageUrls.enterprise.background})` }"
-    ></div>
+    <img :src="imageUrls.enterprise.background" alt="" class="absolute inset-0 h-full w-full select-none object-cover" draggable="false" />
+    <div class="absolute inset-0 bg-black/10"></div>
 
-    <main class="relative z-10 flex h-full flex-col items-center">
-      <section class="relative mt-[160px] h-[1503px] w-[960px]">
-        <img
-          :src="imageUrls.enterprise.panel"
-          alt=""
-          class="pointer-events-none absolute inset-0 z-0 h-full w-full select-none object-fill"
-          draggable="false"
-        />
+    <img :src="imageUrls.enterprise.setLogo" alt="三立集團" class="absolute left-[28px] top-[28px] z-20 w-[295px] select-none" draggable="false" />
+    <img :src="imageUrls.enterprise.setFutureLogo" alt="SET FUTURE" class="absolute right-[28px] top-[28px] z-20 w-[304px] select-none" draggable="false" />
 
-        <button
-          class="absolute left-4 top-[42px] z-40 border-0 bg-transparent p-0"
-          type="button"
-          @click="goHome"
-          @touchend.prevent="goHome"
-        >
-          <img :src="imageUrls.enterprise.backToHome" alt="回首頁" class="block w-[170px] select-none" draggable="false" />
-        </button>
+    <img :src="imageUrls.enterprise.backgroundShadow" alt="" class="absolute left-[15px] top-[206px] z-10 h-[1630px] w-[1050px] select-none" draggable="false" />
 
-        <img
-          :src="imageUrls.enterprise.logo"
-          alt="2026 企業日"
-          class="pointer-events-none absolute -top-[76px] right-[-16px] z-20 w-[470px] select-none object-contain"
-          draggable="false"
-        />
-
-        <div class="relative z-30 flex h-full flex-col items-center px-[92px] pb-[110px] pt-[150px]">
-          <div class="mb-[54px] flex w-full items-end justify-center gap-2.5">
-            <span class="inline-block skew-x-[-4deg] text-[38px] leading-8 text-[#888888]">步驟 3/4</span>
-            <span class="inline-block scale-y-[0.99] skew-x-[-6deg] text-[58px] font-bold leading-[50px] text-[#222222]">
-              拍攝照片
-            </span>
-          </div>
-
-          <div v-if="cameraState === 'countdown' || cameraState === 'captured'" class="mb-6 w-full text-center text-5xl font-bold">
-            {{ cameraState === 'countdown' ? '拍照倒數中，請勿移動' : '請確認照片' }}
-          </div>
-
-          <div class="relative h-[800px] w-full shrink-0 overflow-hidden rounded-lg bg-black">
-            <div v-if="cameraState === 'idle'" class="flex h-full flex-col items-center justify-center">
-              <EnterpriseLoadingAnimation class="mb-8 h-[150px] w-[150px]" />
-              <div class="text-2xl text-[#666666]">正在開啟相機...</div>
-            </div>
-
-            <video
-              v-if="cameraState === 'preview' || cameraState === 'countdown'"
-              ref="videoElement"
-              class="h-full w-full scale-x-[-1] rounded-lg border-4 border-gray-300 object-cover"
-              autoplay
-              playsinline
-            />
-
-            <div v-if="cameraState === 'countdown'" class="absolute inset-0 flex items-center justify-center bg-black/50">
-              <div class="animate-pulse text-[20rem] font-bold leading-none text-white">{{ countdownNumber }}</div>
-            </div>
-
-            <img
-              v-if="cameraState === 'captured'"
-              :src="capturedImage"
-              class="h-full w-full rounded-lg border-4 border-gray-300 object-cover"
-              alt="Captured photo"
-              draggable="false"
-            />
-
-            <div v-if="cameraState === 'loading'" class="flex h-full flex-col items-center justify-center">
-              <EnterpriseLoadingAnimation class="h-[150px] w-[150px]" />
-            </div>
-          </div>
-
-          <div v-if="cameraState === 'loading'" class="mt-12 w-full text-center text-[42px] font-bold leading-relaxed text-[#1f1f1f]">
-            換臉生成中...請稍候
-          </div>
-
-          <div v-if="cameraState === 'countdown'" class="my-12 w-full text-center text-[42px] leading-relaxed">
-            <p>請在五秒內確認你的位置</p>
-            <p>並保持畫面內僅有一人</p>
-            <p>五官清晰無遮擋</p>
-          </div>
-
-          <div v-if="cameraState !== 'countdown' && cameraState !== 'loading'" class="mt-10 flex w-full justify-between gap-8">
-            <button
-              v-if="cameraState !== 'captured'"
-              class="flex h-[72px] flex-1 items-center justify-center border-0 bg-transparent p-0 [touch-action:manipulation]"
-              type="button"
-              @click="goBack"
-              @touchend.prevent="goBack"
-            >
-              <img :src="imageUrls.enterprise.retakeIpButton" alt="重選IP" class="h-full w-full object-contain" draggable="false" />
-            </button>
-            <button
-              v-if="cameraState === 'preview'"
-              class="flex h-[72px] flex-1 items-center justify-center border-0 bg-transparent p-0 [touch-action:manipulation]"
-              type="button"
-              @click="startCountdown"
-              @touchend.prevent="startCountdown"
-            >
-              <img :src="imageUrls.enterprise.takePhotoButton" alt="開始拍照" class="h-full w-full object-contain" draggable="false" />
-            </button>
-            <button
-              v-if="cameraState === 'captured'"
-              class="flex h-[72px] flex-1 items-center justify-center border-0 bg-transparent p-0 [touch-action:manipulation]"
-              type="button"
-              @click="retakePhoto"
-              @touchend.prevent="retakePhoto"
-            >
-              <img :src="imageUrls.enterprise.retakeButton" alt="重新拍照" class="h-full w-full object-contain" draggable="false" />
-            </button>
-            <button
-              v-if="cameraState === 'captured'"
-              class="flex h-[72px] flex-1 items-center justify-center border-0 bg-transparent p-0 [touch-action:manipulation]"
-              type="button"
-              @click="nextStep"
-              @touchend.prevent="nextStep"
-            >
-              <img :src="imageUrls.enterprise.cameraNextButton" alt="下一步" class="h-full w-full object-contain" draggable="false" />
-            </button>
-          </div>
-
-          <div
-            v-if="cameraState !== 'captured' && cameraState !== 'countdown' && cameraState !== 'loading'"
-            class="w-full p-10 text-left text-[32px] leading-[1.8]"
-          >
-            <div>• 點擊後會有5秒準備期，請在5秒內擺好姿勢</div>
-            <div>• 請保持單人在畫面內，避免多人入鏡辨識</div>
-            <div>• 請勿晃動，以免因照片模糊而影響生成品質</div>
-            <div>• 請確保臉部五官完整可見，避免口罩、手部、頭髮遮擋</div>
-          </div>
-        </div>
-      </section>
-    </main>
+    <button
+      class="absolute left-[72px] top-[266px] z-30 flex h-[40px] items-center gap-[12px] border-0 bg-transparent p-0 text-[40px] font-bold text-white [touch-action:manipulation]"
+      type="button"
+      aria-label="返回"
+      @click="goHome"
+      @touchend.prevent="goHome"
+    >
+      <img :src="imageUrls.enterprise.backIcon" alt="" class="h-[40px] w-[40px] select-none object-contain" draggable="false" />
+      <span class="whitespace-nowrap leading-[40px]">回首頁</span>
+    </button>
 
     <img
-      :src="imageUrls.enterprise.footer"
-      alt=""
-      class="pointer-events-none absolute inset-x-0 bottom-0 z-50 w-full select-none"
+      :src="imageUrls.enterprise.badge"
+      alt="與戰地阿特合影"
+      class="absolute left-[547px] top-[150px] z-30 h-[126px] w-[490px] select-none object-contain"
       draggable="false"
     />
+
+    <h1 class="absolute left-[230px] top-[438px] z-30 w-[620px] text-center text-[52px] font-extrabold leading-[56px] tracking-[2px] text-white [text-shadow:0_0_10px_rgba(0,0,0,0.25)]">
+      步驟２：拍攝照片
+    </h1>
+
+    <div class="absolute left-[188px] top-[543px] z-30 h-[691px] w-[703px] overflow-hidden rounded-[24px] bg-[#d9d9d9] shadow-[0_16px_34px_rgba(0,0,0,0.25)]">
+      <img
+        v-if="cameraState === 'preview' || cameraState === 'countdown'"
+        :src="imageUrls.enterprise.cameraFrame"
+        alt=""
+        class="pointer-events-none absolute left-1/2 top-1/2 z-20 h-[60%] w-[60%] -translate-x-1/2 -translate-y-1/2 select-none object-contain"
+        draggable="false"
+      />
+      <div v-if="cameraState === 'idle' || cameraState === 'loading'" class="relative h-full w-full bg-white/80">
+        <video
+          :src="imageUrls.enterprise.loadingVideo"
+          class="absolute inset-0 h-full w-full select-none object-cover"
+          autoplay
+          loop
+          muted
+          playsinline
+        />
+        <div class="absolute inset-x-0 bottom-[46px] z-10 text-center text-[28px] font-bold text-[#1f1f1f]">
+          {{ cameraState === 'idle' ? '正在開啟相機...' : '正在生成圖像...' }}
+        </div>
+      </div>
+
+      <video
+        v-if="cameraState === 'preview' || cameraState === 'countdown'"
+        ref="videoElement"
+        class="h-full w-full scale-x-[-1] object-cover"
+        autoplay
+        playsinline
+      />
+
+      <div v-if="cameraState === 'countdown'" class="absolute inset-0 flex items-center justify-center bg-black/45">
+        <div class="animate-pulse text-[200px] font-black leading-none text-white">{{ countdownNumber }}</div>
+      </div>
+
+      <img
+        v-if="cameraState === 'captured'"
+        :src="capturedImage"
+        class="h-full w-full object-cover"
+        alt="Captured photo"
+        draggable="false"
+      />
+
+    </div>
+
+    <div v-if="cameraState === 'loading'" class="absolute left-[188px] top-[1280px] z-30 w-[703px]">
+      <div class="flex items-center gap-[22px]">
+        <div class="h-[26px] flex-1 overflow-hidden rounded-full border-2 border-white/80 bg-white/70 shadow-inner">
+          <div
+            class="h-full rounded-full bg-[linear-gradient(90deg,#8fcf79,#5ec4d8,#36A030)] transition-[width] duration-500 ease-out"
+            :style="{ width: displayGenerationProgress + '%' }"
+          ></div>
+        </div>
+        <div class="w-[82px] text-right text-[28px] font-extrabold leading-[40px] text-[#36A030]">
+          {{ displayGenerationProgress }}%
+        </div>
+      </div>
+      <div class="mt-[34px] text-center text-[32px] font-extrabold leading-[45px] text-[#1f1f1f]">圖片生成中，請稍候</div>
+    </div>
+
+    <div v-if="cameraState === 'countdown'" class="absolute left-[109px] top-[1318px] z-30 w-[861px] text-center text-[36px] font-black leading-[68px] text-[#1f1f1f]">
+      <p>請在五秒內確認你的位置</p>
+      <p>並保持畫面內僅有一人</p>
+      <p>五官清晰無遮擋</p>
+    </div>
+
+    <template v-if="cameraState !== 'countdown' && cameraState !== 'loading'">
+      <button
+        v-if="cameraState !== 'captured'"
+        :class="cameraState === 'preview' ? 'left-[89px]' : 'left-1/2 -translate-x-1/2'"
+        class="absolute top-[1310px] z-50 flex h-[118px] w-[429px] items-center justify-center rounded-[36px] border border-[#7bcaa6] bg-[linear-gradient(105deg,rgba(245,255,245,0.94),rgba(194,243,255,0.86),rgba(255,255,255,0.9))] text-[42px] font-black text-[#36A030] shadow-[0_12px_28px_rgba(0,0,0,0.18)] backdrop-blur-md [touch-action:manipulation]"
+        type="button"
+        @click="goBack"
+        @touchend.prevent="goBack"
+      >
+        重新選擇
+      </button>
+      <button
+        v-if="cameraState === 'preview'"
+        class="absolute left-[561px] top-[1310px] z-50 flex h-[118px] w-[429px] items-center justify-center rounded-[36px] border border-[#7bcaa6] bg-[linear-gradient(105deg,rgba(245,255,245,0.94),rgba(194,243,255,0.86),rgba(255,255,255,0.9))] text-[42px] font-black text-[#36A030] shadow-[0_12px_28px_rgba(0,0,0,0.18)] backdrop-blur-md [touch-action:manipulation]"
+        type="button"
+        @click="startCountdown"
+        @touchend.prevent="startCountdown"
+      >
+        下一步
+      </button>
+      <button
+        v-if="cameraState === 'captured'"
+        class="absolute left-[89px] top-[1294px] z-50 flex h-[118px] w-[429px] items-center justify-center rounded-[36px] border border-[#7bcaa6] bg-[linear-gradient(105deg,rgba(245,255,245,0.94),rgba(194,243,255,0.86),rgba(255,255,255,0.9))] text-[42px] font-black text-[#36A030] shadow-[0_12px_28px_rgba(0,0,0,0.18)] backdrop-blur-md [touch-action:manipulation]"
+        type="button"
+        @click="retakePhoto"
+        @touchend.prevent="retakePhoto"
+      >
+        重新拍照
+      </button>
+      <button
+        v-if="cameraState === 'captured'"
+        class="absolute left-[561px] top-[1294px] z-50 flex h-[118px] w-[429px] items-center justify-center rounded-[36px] border border-[#7bcaa6] bg-[linear-gradient(105deg,rgba(245,255,245,0.94),rgba(194,243,255,0.86),rgba(255,255,255,0.9))] text-[42px] font-black text-[#36A030] shadow-[0_12px_28px_rgba(0,0,0,0.18)] backdrop-blur-md [touch-action:manipulation]"
+        type="button"
+        @click="nextStep"
+        @touchend.prevent="nextStep"
+      >
+        下一步
+      </button>
+    </template>
+
+    <div
+      v-if="cameraState !== 'captured' && cameraState !== 'countdown' && cameraState !== 'loading'"
+      class="absolute left-[98px] top-[1490px] z-30 w-[884px] text-left text-[28px] font-bold leading-[59px] text-[#1f1f1f]"
+    >
+      <div>點擊後會有5秒準備期，請在秒數內擺好姿勢</div>
+      <div>請保持單人在畫面內，避免多人以利辨識</div>
+      <div>請確保臉部五官完整可見，避免口罩、手部、頭髮等遮擋</div>
+      <div>請勿晃動，以免因照片模糊而影響生成品質</div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { onMounted, onUnmounted, ref } from 'vue'
+import { computed, onMounted, onUnmounted, ref, watch } from 'vue'
 import { imageUrls } from '../../config/imageUrls.js'
-import EnterpriseLoadingAnimation from './EnterpriseLoadingAnimation.vue'
 
-defineProps({
+const props = defineProps({
   selectedTemplate: {
     type: String,
     default: '',
@@ -157,6 +159,14 @@ defineProps({
   selectedCharacter: {
     type: String,
     default: '',
+  },
+  generationProgress: {
+    type: Number,
+    default: 0,
+  },
+  generationStatus: {
+    type: String,
+    default: 'idle',
   },
 })
 
@@ -167,6 +177,17 @@ const videoElement = ref(null)
 const capturedImage = ref('')
 const countdownNumber = ref(5)
 const stream = ref(null)
+
+const displayGenerationProgress = computed(() => Math.max(0, Math.min(100, Math.round(props.generationProgress))))
+
+watch(
+  () => props.generationStatus,
+  (status) => {
+    if (status === 'failed' && cameraState.value === 'loading') {
+      cameraState.value = 'captured'
+    }
+  },
+)
 
 async function startCamera({ autoCountdown = false } = {}) {
   try {

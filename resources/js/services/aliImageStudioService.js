@@ -1,7 +1,7 @@
-const TEMPLATE_API_ORIGIN = 'http://nurse.5gao.ai:8067'
+const DEFAULT_TEMPLATE_API_BASE_URL = 'http://set.fanpokka.ai:8067'
 
 function getTemplateApiConfig() {
-  const baseURL = window.endpoint?.templateApiBaseURL || 'http://localhost:8067'
+  const baseURL = window.endpoint?.templateApiBaseURL || DEFAULT_TEMPLATE_API_BASE_URL
   const timeout = window.endpoint?.templateApiTimeout || 120000
 
   return {
@@ -9,7 +9,6 @@ function getTemplateApiConfig() {
     timeout,
   }
 }
-
 
 async function fetchWithTimeout(url, options = {}, timeout = 120000) {
   const controller = new AbortController()
@@ -25,12 +24,26 @@ async function fetchWithTimeout(url, options = {}, timeout = 120000) {
   }
 }
 
+function getStatusHint(status) {
+  const hints = {
+    400: '圖片格式不支援或參數錯誤',
+    404: '找不到指定模板，請確認後端模板名稱或 template id',
+    502: '生圖服務回應錯誤，請稍後再試',
+    504: '生圖逾時，請稍後再試',
+  }
+
+  return hints[status] || `HTTP ${status}`
+}
+
 async function readErrorMessage(response) {
+  const fallback = getStatusHint(response.status)
+
   try {
     const data = await response.json()
-    return data.detail || data.error_message || data.message || `HTTP ${response.status}`
+    const detail = data.detail || data.error_message || data.message
+    return detail ? `${fallback}：${detail}` : fallback
   } catch (error) {
-    return `HTTP ${response.status}: ${response.statusText}`
+    return `${fallback}: ${response.statusText}`
   }
 }
 
@@ -39,9 +52,9 @@ function toAbsoluteUrl(baseURL, url) {
 
   if (/^https?:\/\//i.test(url)) {
     const source = new URL(url)
-    const templateApiOrigin = new URL(TEMPLATE_API_ORIGIN)
+    const configuredOrigin = new URL(baseURL)
 
-    if (source.origin === templateApiOrigin.origin) {
+    if (source.origin === configuredOrigin.origin) {
       return `${baseURL}${source.pathname}${source.search}${source.hash}`
     }
 

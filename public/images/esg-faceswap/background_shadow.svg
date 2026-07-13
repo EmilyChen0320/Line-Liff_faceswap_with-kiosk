@@ -1,0 +1,28 @@
+<svg width="1050" height="1630" viewBox="0 0 1050 1630" fill="none" xmlns="http://www.w3.org/2000/svg">
+<foreignObject x="-75" y="-75" width="1200" height="1780"><div xmlns="http://www.w3.org/1999/xhtml" style="backdrop-filter:blur(50px);clip-path:url(#bgblur_0_916_913_clip_path);height:100%;width:100%"></div></foreignObject><g filter="url(#filter0_di_916_913)" data-figma-bg-blur-radius="100">
+<path d="M945 25C989.183 25 1025 60.8173 1025 105V1525C1025 1569.18 989.183 1605 945 1605H105C60.8172 1605 25 1569.18 25 1525V224C25.0001 179.817 60.8173 144 105 144H205.859C241.006 144 272.036 121.06 282.343 87.459L284.157 81.541C294.464 47.9396 325.494 25.0001 360.641 25H945Z" fill="url(#paint0_linear_916_913)" fill-opacity="0.4" style="mix-blend-mode:overlay" shape-rendering="crispEdges"/>
+</g>
+<defs>
+<filter id="filter0_di_916_913" x="-75" y="-75" width="1200" height="1780" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="12.5"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0.215686 0 0 0 0 0.215686 0 0 0 0 0.215686 0 0 0 0.1 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_916_913"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_916_913" result="shape"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset/>
+<feGaussianBlur stdDeviation="5"/>
+<feComposite in2="hardAlpha" operator="arithmetic" k2="-1" k3="1"/>
+<feColorMatrix type="matrix" values="0 0 0 0 1 0 0 0 0 1 0 0 0 0 1 0 0 0 0.2 0"/>
+<feBlend mode="normal" in2="shape" result="effect2_innerShadow_916_913"/>
+</filter>
+<clipPath id="bgblur_0_916_913_clip_path" transform="translate(75 75)"><path d="M945 25C989.183 25 1025 60.8173 1025 105V1525C1025 1569.18 989.183 1605 945 1605H105C60.8172 1605 25 1569.18 25 1525V224C25.0001 179.817 60.8173 144 105 144H205.859C241.006 144 272.036 121.06 282.343 87.459L284.157 81.541C294.464 47.9396 325.494 25.0001 360.641 25H945Z"/>
+</clipPath><linearGradient id="paint0_linear_916_913" x1="81.1404" y1="128.687" x2="1169.28" y2="82.4626" gradientUnits="userSpaceOnUse">
+<stop stop-color="white" stop-opacity="0.97"/>
+<stop offset="1" stop-color="white" stop-opacity="0.1"/>
+</linearGradient>
+</defs>
+</svg>
