@@ -1,11 +1,19 @@
 const DEFAULT_TEMPLATE_API_BASE_URL = 'http://set.fanpokka.ai:8067'
+const TEMPLATE_API_PROXY_BASE_URL = '/template-api'
 
 function getTemplateApiConfig() {
-  const baseURL = window.endpoint?.templateApiBaseURL || DEFAULT_TEMPLATE_API_BASE_URL
+  const configuredBaseURL = window.endpoint?.templateApiBaseURL
+  const baseURL = configuredBaseURL
+    || (window.location.protocol === 'https:'
+      ? TEMPLATE_API_PROXY_BASE_URL
+      : DEFAULT_TEMPLATE_API_BASE_URL)
   const timeout = window.endpoint?.templateApiTimeout || 120000
+  const normalizedBaseURL = baseURL.replace(/\/$/, '')
 
   return {
-    baseURL: baseURL.replace(/\/$/, ''),
+    baseURL: normalizedBaseURL,
+    absoluteBaseURL: new URL(normalizedBaseURL, window.location.origin).href.replace(/\/$/, ''),
+    upstreamBaseURL: DEFAULT_TEMPLATE_API_BASE_URL,
     timeout,
   }
 }
@@ -47,21 +55,24 @@ async function readErrorMessage(response) {
   }
 }
 
-function toAbsoluteUrl(baseURL, url) {
+function toAbsoluteUrl(config, url) {
   if (!url) return ''
 
   if (/^https?:\/\//i.test(url)) {
     const source = new URL(url)
-    const configuredOrigin = new URL(baseURL)
+    const configuredOrigin = new URL(config.absoluteBaseURL)
+    const upstreamOrigin = new URL(config.upstreamBaseURL)
 
-    if (source.origin === configuredOrigin.origin) {
-      return `${baseURL}${source.pathname}${source.search}${source.hash}`
+    if (source.origin === configuredOrigin.origin || (
+      window.location.protocol === 'https:' && source.origin === upstreamOrigin.origin
+    )) {
+      return `${config.absoluteBaseURL}${source.pathname}${source.search}${source.hash}`
     }
 
     return url
   }
 
-  return `${baseURL}${url.startsWith('/') ? '' : '/'}${url}`
+  return `${config.absoluteBaseURL}${url.startsWith('/') ? '' : '/'}${url}`
 }
 
 export const aliImageStudioService = {
@@ -101,7 +112,7 @@ export const aliImageStudioService = {
       throw new Error(data.error_message || '生圖未完成，請重新再試')
     }
 
-    const outputUrl = toAbsoluteUrl(config.baseURL, data.outputs[0].url)
+    const outputUrl = toAbsoluteUrl(config, data.outputs[0].url)
 
     return {
       ...data,

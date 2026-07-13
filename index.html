@@ -15,7 +15,9 @@
       // 請求超時時間（毫秒）
       timeout: 30000,
       // ESG 既有模板生圖 API
-      templateApiBaseURL: 'http://set.fanpokka.ai:8067',
+      templateApiBaseURL: window.location.protocol === 'https:'
+        ? '/template-api'
+        : 'http://set.fanpokka.ai:8067',
       // QR Code 掃描後開啟的前端網址；給手機掃時請改成 kiosk 電腦的區網 IP，例如 http://192.168.1.10:5174
       qrCodeBaseURL: '',
       // 調試模式 - 正式環境保持 false，避免輸出敏感配置

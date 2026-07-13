@@ -51,6 +51,13 @@ export default defineConfig(({ command }) => ({
                 changeOrigin: true,
                 secure: true,
                 rewrite: (path) => path.replace(/^\/static-resource/, '/static-resource')
+            },
+            // 代理 ESG 既有模板生圖 API，HTTPS 部署也需配置同等反向代理避免 Mixed Content
+            '/template-api': {
+                target: 'http://set.fanpokka.ai:8067',
+                changeOrigin: true,
+                secure: false,
+                rewrite: (path) => path.replace(/^\/template-api/, '')
             }
         }
     },

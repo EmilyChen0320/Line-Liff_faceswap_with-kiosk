@@ -50,12 +50,15 @@ npm run build
 window.endpoint = {
   baseURL: 'https://example.com/api',
   timeout: 30000,
-  templateApiBaseURL: 'http://set.fanpokka.ai:8067',
+  templateApiBaseURL: window.location.protocol === 'https:'
+    ? '/template-api'
+    : 'http://set.fanpokka.ai:8067',
   debug: false,
 }
 ```
 
 模板 ID 會先透過 `GET /api/templates` 依 `ESG` 與性別字樣自動解析。
+HTTPS 部署時需在同網域提供 `/template-api/*` 反向代理到模板生圖服務，避免瀏覽器封鎖 HTTP Mixed Content。
 
 ## 主要檔案
 
@@ -74,7 +77,7 @@ window.endpoint = {
 - `GET {templateApiBaseURL}/api/templates`：查詢 ESG 男 / 女模板
 - `POST {templateApiBaseURL}/api/templates/{templateId}/generate`：送出拍攝照片
 - request body 使用 `multipart/form-data`，欄位為 `image`
-- response 取 `outputs[0].url` 作為結果圖，若為相對路徑會補上 API base URL
+- response 取 `outputs[0].url` 作為結果圖；HTTPS 頁面會把模板服務回傳的 HTTP 圖片網址改寫為同源 `/template-api/uploads/...`
 - 是否需要 token 或其他 headers
 - QR short link 是否由後端產生
 
