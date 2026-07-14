@@ -33,12 +33,20 @@
       @click="selectGender('male')"
       @touchend.prevent="selectGender('male')"
     >
-      <img
-        :src="imageUrls.enterprise.gender.male.photo"
-        alt="男生"
-        class="h-[507px] w-[330px] select-none object-contain"
-        draggable="false"
-      />
+      <div
+        :class="selectedGender === 'male'
+          ? 'bg-[linear-gradient(126deg,#ADD37F_18.67%,#6EB39A_46.73%,#3494BB_73.22%)] p-[5px] shadow-[0_0_12px_rgba(0,0,0,0.25)]'
+          : 'bg-transparent p-0 shadow-none'"
+        class="h-[507px] w-[330px] overflow-hidden rounded-[24px]"
+      >
+        <img
+          :src="imageUrls.enterprise.gender.male.photo"
+          alt="男生"
+          :class="selectedGender === 'male' ? 'rounded-[19px]' : 'rounded-[24px]'"
+          class="h-full w-full select-none object-cover"
+          draggable="false"
+        />
+      </div>
     </button>
 
     <button
@@ -47,12 +55,20 @@
       @click="selectGender('female')"
       @touchend.prevent="selectGender('female')"
     >
-      <img
-        :src="imageUrls.enterprise.gender.female.photo"
-        alt="女生"
-        class="h-[507px] w-[330px] select-none object-contain"
-        draggable="false"
-      />
+      <div
+        :class="selectedGender === 'female'
+          ? 'bg-[linear-gradient(126deg,#ADD37F_18.67%,#6EB39A_46.73%,#3494BB_73.22%)] p-[5px] shadow-[0_0_12px_rgba(0,0,0,0.25)]'
+          : 'bg-transparent p-0 shadow-none'"
+        class="h-[507px] w-[330px] overflow-hidden rounded-[24px]"
+      >
+        <img
+          :src="imageUrls.enterprise.gender.female.photo"
+          alt="女生"
+          :class="selectedGender === 'female' ? 'rounded-[19px]' : 'rounded-[24px]'"
+          class="h-full w-full select-none object-cover"
+          draggable="false"
+        />
+      </div>
     </button>
 
     <button

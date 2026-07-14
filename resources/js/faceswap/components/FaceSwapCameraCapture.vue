@@ -38,7 +38,19 @@
         class="pointer-events-none absolute left-1/2 top-1/2 z-20 h-[60%] w-[60%] -translate-x-1/2 -translate-y-1/2 select-none object-contain"
         draggable="false"
       />
-      <div v-if="cameraState === 'idle' || cameraState === 'loading'" class="relative h-full w-full bg-white/80">
+      <div v-if="cameraState === 'idle'" class="relative h-full w-full bg-white/88">
+        <img
+          :src="imageUrls.enterprise.cameraFrame"
+          alt=""
+          class="pointer-events-none absolute left-1/2 top-1/2 z-20 h-[60%] w-[60%] -translate-x-1/2 -translate-y-1/2 select-none object-contain opacity-65"
+          draggable="false"
+        />
+        <div class="absolute inset-x-0 bottom-[46px] z-10 text-center text-[28px] font-bold text-[#1f1f1f]">
+          正在開啟相機...
+        </div>
+      </div>
+
+      <div v-if="cameraState === 'loading'" class="relative h-full w-full bg-white/80">
         <video
           :src="imageUrls.enterprise.loadingVideo"
           class="absolute inset-0 h-full w-full select-none object-cover"
@@ -48,7 +60,7 @@
           playsinline
         />
         <div class="absolute inset-x-0 bottom-[46px] z-10 text-center text-[28px] font-bold text-[#1f1f1f]">
-          {{ cameraState === 'idle' ? '正在開啟相機...' : '正在生成圖像...' }}
+          正在生成圖像...
         </div>
       </div>
 
