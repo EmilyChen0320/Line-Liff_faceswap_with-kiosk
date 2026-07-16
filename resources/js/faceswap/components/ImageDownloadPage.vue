@@ -15,7 +15,10 @@
       draggable="false"
     />
 
-    <div class="relative z-10 mx-auto flex min-h-screen max-w-[520px] flex-col items-center justify-center gap-6 px-5 py-8">
+    <div
+      class="relative z-10 mx-auto flex min-h-screen max-w-[520px] flex-col items-center justify-center px-5 py-8"
+      :class="isLineWebView ? 'gap-5' : 'gap-6'"
+    >
       <div class="flex w-full items-center justify-center overflow-hidden rounded-[28px] border-[10px] border-black bg-black shadow-[0_16px_34px_rgba(0,0,0,0.25)]">
         <a
           v-if="imageUrl"
@@ -36,7 +39,15 @@
         </div>
       </div>
 
-      <section class="w-full text-center">
+      <img
+        v-if="isLineWebView && imageUrl"
+        :src="lineInstructionImage"
+        alt="LINE 外部瀏覽器操作示範"
+        class="block h-auto w-full"
+        draggable="false"
+      />
+
+      <section v-else class="w-full text-center">
         <p class="text-[20px] font-bold leading-[1.45]">
           {{ primaryMessage }}
         </p>
@@ -48,6 +59,7 @@
 <script setup>
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { imageUrls } from '../../config/imageUrls.js'
+import lineInstructionImage from '../../../../public/images/test.png'
 
 const props = defineProps({
   imageUrl: {
@@ -55,6 +67,9 @@ const props = defineProps({
     default: '',
   },
 })
+
+const userAgent = navigator.userAgent || ''
+const isLineWebView = /Line\//i.test(userAgent)
 
 const primaryMessage = computed(() => {
   if (!props.imageUrl) return '圖片網址無效'
