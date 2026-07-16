@@ -12,7 +12,11 @@ import esgMaleButtonDefaultImg from '../../../public/images/esg-faceswap/btn_男
 import esgMaleButtonSelectedImg from '../../../public/images/esg-faceswap/btn_男生換臉_selected.png'
 import esgFemaleButtonDefaultImg from '../../../public/images/esg-faceswap/btn_女生換臉_default.png'
 import esgFemaleButtonSelectedImg from '../../../public/images/esg-faceswap/btn_女生換臉_selected.png'
-import esgQrModalButtonImg from '../../../public/images/esg-faceswap/Frame1000004222.png'
+import esgSelectionNextDisabledImg from '../../../public/images/esg-faceswap/btn_「選擇性別頁」下一步 disabled.png'
+import esgPrimaryNextButtonImg from '../../../public/images/esg-faceswap/btn_「選擇性別、拍攝照片頁」下一步 Primary.png'
+import esgConfirmPhotoNextButtonImg from '../../../public/images/esg-faceswap/btn_「確認照片頁」下一步.png'
+import esgDownloadButtonImg from '../../../public/images/esg-faceswap/btn_下載圖片.png'
+import esgCloseButtonImg from '../../../public/images/esg-faceswap/btn_關閉 .png'
 import esgLoadingVideo from '../../../public/images/esg-faceswap/loading.mp4'
 
 export const imageUrls = {
@@ -27,7 +31,13 @@ export const imageUrls = {
     backIcon: esgBackIconImg,
     cameraFrame: esgCameraFrameImg,
     loadingVideo: esgLoadingVideo,
-    qrModalButton: esgQrModalButtonImg,
+    buttons: {
+      selectionNextDisabled: esgSelectionNextDisabledImg,
+      primaryNext: esgPrimaryNextButtonImg,
+      confirmPhotoNext: esgConfirmPhotoNextButtonImg,
+      download: esgDownloadButtonImg,
+      close: esgCloseButtonImg,
+    },
     gender: {
       female: {
         photo: esgGenderFemaleImg,

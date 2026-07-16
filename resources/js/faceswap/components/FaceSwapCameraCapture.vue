@@ -60,7 +60,7 @@
           playsinline
         />
         <div class="absolute inset-x-0 bottom-[46px] z-10 text-center text-[28px] font-bold text-[#1f1f1f]">
-          正在生成圖像...
+  
         </div>
       </div>
 
@@ -120,12 +120,17 @@
       </button>
       <button
         v-if="cameraState === 'preview'"
-        class="absolute left-[561px] top-[1310px] z-50 flex h-[118px] w-[429px] items-center justify-center rounded-[36px] border border-[#7bcaa6] bg-[linear-gradient(105deg,rgba(245,255,245,0.94),rgba(194,243,255,0.86),rgba(255,255,255,0.9))] text-[42px] font-black text-[#36A030] shadow-[0_12px_28px_rgba(0,0,0,0.18)] backdrop-blur-md [touch-action:manipulation]"
+        class="absolute left-[561px] top-[1310px] z-50 h-[118px] w-[429px] border-0 bg-transparent p-0 [touch-action:manipulation]"
         type="button"
         @click="startCountdown"
         @touchend.prevent="startCountdown"
       >
-        下一步
+        <img
+          :src="imageUrls.enterprise.buttons.confirmPhotoNext"
+          alt="下一步"
+          class="h-full w-full select-none object-contain"
+          draggable="false"
+        />
       </button>
       <button
         v-if="cameraState === 'captured'"
@@ -138,12 +143,17 @@
       </button>
       <button
         v-if="cameraState === 'captured'"
-        class="absolute left-[561px] top-[1294px] z-50 flex h-[118px] w-[429px] items-center justify-center rounded-[36px] border border-[#7bcaa6] bg-[linear-gradient(105deg,rgba(245,255,245,0.94),rgba(194,243,255,0.86),rgba(255,255,255,0.9))] text-[42px] font-black text-[#36A030] shadow-[0_12px_28px_rgba(0,0,0,0.18)] backdrop-blur-md [touch-action:manipulation]"
+        class="absolute left-[561px] top-[1294px] z-50 h-[118px] w-[429px] border-0 bg-transparent p-0 [touch-action:manipulation]"
         type="button"
         @click="nextStep"
         @touchend.prevent="nextStep"
       >
-        下一步
+        <img
+          :src="imageUrls.enterprise.buttons.confirmPhotoNext"
+          alt="下一步"
+          class="h-full w-full select-none object-contain"
+          draggable="false"
+        />
       </button>
     </template>
 

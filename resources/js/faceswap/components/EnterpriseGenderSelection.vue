@@ -100,13 +100,18 @@
     </button>
 
     <button
-      class="absolute left-[98px] top-[1647px] z-30 flex h-[118px] w-[884px] items-center justify-center rounded-[36px] border border-[#bde5ce] bg-[linear-gradient(105deg,rgba(245,255,245,0.94),rgba(194,243,255,0.86),rgba(255,255,255,0.9))] text-[42px] font-black text-[#36A030] shadow-[0_12px_28px_rgba(0,0,0,0.18)] backdrop-blur-md disabled:opacity-55 [touch-action:manipulation]"
+      class="absolute left-[98px] top-[1647px] z-30 h-[118px] w-[884px] border-0 bg-transparent p-0 [touch-action:manipulation]"
       type="button"
       :disabled="!selectedGender"
       @click="nextStep"
       @touchend.prevent="nextStep"
     >
-      下一步
+      <img
+        :src="selectedGender ? imageUrls.enterprise.buttons.primaryNext : imageUrls.enterprise.buttons.selectionNextDisabled"
+        :alt="selectedGender ? '下一步' : '下一步（未啟用）'"
+        class="h-full w-full select-none object-contain"
+        draggable="false"
+      />
     </button>
   </div>
 </template>

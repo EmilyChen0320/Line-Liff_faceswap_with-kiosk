@@ -20,17 +20,16 @@
 
       <button
         type="button"
-        class="relative mt-[46px] flex h-[97px] w-[480px] items-center justify-center border-0 bg-transparent p-0 text-[36px] font-black text-[#36A030] [touch-action:manipulation]"
+        class="mt-[46px] h-[97px] w-[480px] border-0 bg-transparent p-0 [touch-action:manipulation]"
         @click="close"
         @touchend.prevent="close"
       >
         <img
-          :src="imageUrls.enterprise.qrModalButton"
-          alt=""
-          class="absolute inset-0 h-full w-full select-none object-fill"
+          :src="imageUrls.enterprise.buttons.close"
+          alt="關閉"
+          class="h-full w-full select-none object-contain"
           draggable="false"
         />
-        <span class="relative z-10">關閉</span>
       </button>
     </div>
   </div>
