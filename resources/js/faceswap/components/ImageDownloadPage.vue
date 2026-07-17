@@ -19,7 +19,10 @@
       class="relative z-10 mx-auto flex min-h-screen max-w-[520px] flex-col items-center justify-center px-5 py-8"
       :class="isLineWebView ? 'gap-5' : 'gap-6'"
     >
-      <div class="flex w-full items-center justify-center overflow-hidden rounded-[28px] border-[10px] border-black bg-black shadow-[0_16px_34px_rgba(0,0,0,0.25)]">
+      <div
+        class="flex items-center justify-center overflow-hidden rounded-[28px] border-[10px] border-black bg-black shadow-[0_16px_34px_rgba(0,0,0,0.25)]"
+        :class="isLineWebView ? 'w-[84%] max-w-[360px]' : 'w-[88%] max-w-[380px]'"
+      >
         <a
           v-if="imageUrl"
           :href="imageUrl"
