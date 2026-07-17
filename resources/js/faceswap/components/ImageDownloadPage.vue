@@ -8,22 +8,22 @@
     />
     <div class="absolute inset-0 bg-black/10"></div>
 
-    <div class="relative z-10 mx-auto flex min-h-screen w-full max-w-[560px] items-center justify-center px-4 py-8">
-      <div class="relative w-full">
+    <div class="relative z-10 flex min-h-screen w-full justify-center px-4 py-6">
+      <div class="relative mx-auto w-full max-w-[420px]">
         <img
-          :src="imageUrls.enterprise.backgroundShadow"
+          :src="panelBackgroundImage"
           alt=""
-          class="pointer-events-none absolute inset-x-[-20px] inset-y-[-26px] h-[calc(100%+52px)] w-[calc(100%+40px)] select-none object-fill"
+          class="pointer-events-none absolute inset-0 h-full w-full select-none object-fill"
           draggable="false"
         />
 
         <div
-          class="relative flex flex-col items-center px-5 py-8"
+          class="relative flex w-full flex-col items-center px-5 pb-8 pt-7"
           :class="isLineWebView ? 'gap-5' : 'gap-6'"
         >
           <div
             class="flex items-center justify-center overflow-hidden rounded-[28px] border-[10px] border-black bg-black shadow-[0_16px_34px_rgba(0,0,0,0.25)]"
-            :class="isLineWebView ? 'w-[84%] max-w-[360px]' : 'w-[88%] max-w-[380px]'"
+            :class="isLineWebView ? 'w-[84%] max-w-[320px]' : 'w-[88%] max-w-[340px]'"
           >
             <a
               v-if="imageUrl"
@@ -48,11 +48,11 @@
             v-if="isLineWebView && imageUrl"
             :src="lineInstructionImage"
             alt="LINE 外部瀏覽器操作示範"
-            class="block h-auto w-full"
+            class="block h-auto w-full max-w-[372px]"
             draggable="false"
           />
 
-          <section v-else class="w-full text-center">
+          <section v-else class="w-full max-w-[360px] text-center">
             <p class="text-[20px] font-bold leading-[1.45]">
               {{ primaryMessage }}
             </p>
@@ -67,6 +67,7 @@
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { imageUrls } from '../../config/imageUrls.js'
 import lineInstructionImage from '../../../../public/images/test.png'
+import panelBackgroundAsset from '../../../../public/images/esg-faceswap/Exclude.svg'
 
 const props = defineProps({
   imageUrl: {
@@ -77,6 +78,8 @@ const props = defineProps({
 
 const userAgent = navigator.userAgent || ''
 const isLineWebView = /Line\//i.test(userAgent)
+
+const panelBackgroundImage = computed(() => panelBackgroundAsset || imageUrls.enterprise.backgroundShadow)
 
 const primaryMessage = computed(() => {
   if (!props.imageUrl) return '圖片網址無效'
