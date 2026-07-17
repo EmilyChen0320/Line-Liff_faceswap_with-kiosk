@@ -13,13 +13,6 @@
         class="relative mx-auto flex w-full max-w-[420px] flex-col items-center overflow-hidden rounded-[40px] bg-white/25 px-5 pb-20 pt-8 shadow-[0_0_25px_rgba(55,55,55,0.1)] backdrop-blur-[25px]"
         :class="isLineWebView ? 'gap-5' : 'gap-6'"
       >
-        <img
-          :src="panelBackgroundAsset"
-          alt=""
-          class="pointer-events-none absolute inset-0 h-full w-full select-none object-fill opacity-100"
-          draggable="false"
-        />
-
         <div
           class="relative z-10 flex items-center justify-center overflow-hidden rounded-[28px] border-[10px] border-black bg-black shadow-[0_16px_34px_rgba(0,0,0,0.25)]"
           :class="isLineWebView ? 'w-[84%] max-w-[320px]' : 'w-[88%] max-w-[340px]'"
@@ -65,7 +58,6 @@
 import { computed, onBeforeUnmount, onMounted } from 'vue'
 import { imageUrls } from '../../config/imageUrls.js'
 import lineInstructionImage from '../../../../public/images/test.png'
-import panelBackgroundAsset from '../../../../public/images/esg-faceswap/Exclude.svg'
 
 const props = defineProps({
   imageUrl: {
