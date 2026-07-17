@@ -8,53 +8,57 @@
     />
     <div class="absolute inset-0 bg-black/10"></div>
 
-    <img
-      :src="imageUrls.enterprise.backgroundShadow"
-      alt=""
-      class="absolute left-1/2 top-1/2 h-[min(84vh,1630px)] w-[min(92vw,1050px)] -translate-x-1/2 -translate-y-1/2 select-none"
-      draggable="false"
-    />
+    <div class="relative z-10 mx-auto flex min-h-screen w-full max-w-[560px] items-center justify-center px-4 py-8">
+      <div class="relative w-full">
+        <img
+          :src="imageUrls.enterprise.backgroundShadow"
+          alt=""
+          class="pointer-events-none absolute inset-x-[-20px] inset-y-[-26px] h-[calc(100%+52px)] w-[calc(100%+40px)] select-none object-fill"
+          draggable="false"
+        />
 
-    <div
-      class="relative z-10 mx-auto flex min-h-screen max-w-[520px] flex-col items-center justify-center px-5 py-8"
-      :class="isLineWebView ? 'gap-5' : 'gap-6'"
-    >
-      <div
-        class="flex items-center justify-center overflow-hidden rounded-[28px] border-[10px] border-black bg-black shadow-[0_16px_34px_rgba(0,0,0,0.25)]"
-        :class="isLineWebView ? 'w-[84%] max-w-[360px]' : 'w-[88%] max-w-[380px]'"
-      >
-        <a
-          v-if="imageUrl"
-          :href="imageUrl"
-          target="_blank"
-          rel="noopener"
-          class="block w-full overflow-hidden rounded-[18px] bg-black [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
+        <div
+          class="relative flex flex-col items-center px-5 py-8"
+          :class="isLineWebView ? 'gap-5' : 'gap-6'"
         >
+          <div
+            class="flex items-center justify-center overflow-hidden rounded-[28px] border-[10px] border-black bg-black shadow-[0_16px_34px_rgba(0,0,0,0.25)]"
+            :class="isLineWebView ? 'w-[84%] max-w-[360px]' : 'w-[88%] max-w-[380px]'"
+          >
+            <a
+              v-if="imageUrl"
+              :href="imageUrl"
+              target="_blank"
+              rel="noopener"
+              class="block w-full overflow-hidden rounded-[18px] bg-black [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
+            >
+              <img
+                :src="imageUrl"
+                alt="生成結果"
+                @contextmenu.stop
+                class="block h-auto w-full [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
+              />
+            </a>
+            <div v-else class="px-6 py-16 text-center text-base font-bold text-[#202020]">
+              找不到生成圖片
+            </div>
+          </div>
+
           <img
-            :src="imageUrl"
-            alt="生成結果"
-            @contextmenu.stop
-            class="block h-auto w-full [-webkit-touch-callout:default] [-webkit-user-select:auto] [user-select:auto]"
+            v-if="isLineWebView && imageUrl"
+            :src="lineInstructionImage"
+            alt="LINE 外部瀏覽器操作示範"
+            class="block h-auto w-full"
+            draggable="false"
           />
-        </a>
-        <div v-else class="px-6 py-16 text-center text-base font-bold text-[#202020]">
-          找不到生成圖片
+
+          <section v-else class="w-full text-center">
+            <p class="text-[20px] font-bold leading-[1.45]">
+              {{ primaryMessage }}
+            </p>
+          </section>
         </div>
       </div>
-
-      <img
-        v-if="isLineWebView && imageUrl"
-        :src="lineInstructionImage"
-        alt="LINE 外部瀏覽器操作示範"
-        class="block h-auto w-full"
-        draggable="false"
-      />
-
-      <section v-else class="w-full text-center">
-        <p class="text-[20px] font-bold leading-[1.45]">
-          {{ primaryMessage }}
-        </p>
-      </section>
     </div>
   </main>
 </template>
